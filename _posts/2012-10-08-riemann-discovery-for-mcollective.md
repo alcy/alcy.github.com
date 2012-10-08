@@ -7,7 +7,7 @@ tags: []
 ---
 {% include JB/setup %}
 
-This is a simple POC for exploring the idea of orchestration based on your monitoring data. It also illustrates the flexibility & power that mcollective & riemann expose to the users. 
+This is a simple POC for exploring the idea of orchestration based on your monitoring data. It also illustrates the flexibility & power that mcollective & [riemann](http://aphyr.github.com/riemann/) expose to the users. 
 
 Riemann provides a small query language for querying the state of your monitoring, for example querying the state for events where memory exceeds 70% looks like `service = "memory" and metric > 0.7` and will give you: 
 
