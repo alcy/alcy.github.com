@@ -7,7 +7,7 @@ tags: []
 ---
 {% include JB/setup %}
 
-If you are writing or using custom puppet providers that rely on external libraries or gems, you might run into problems where puppet would either simply refuse to retrieve the catalog for you due to unmet dependencies or will need multiple runs to reach the desired state. I ran into these problems while trying out the [sensu-puppet](https://github.com/sensu/sensu-puppet) module which relies on the json library for its providers to work. More details documented in [#17747](https://projects.puppetlabs.com/issues/17747) and other related tickets.  
+If you are writing or using custom puppet providers that rely on external libraries or gems, you might run into problems where puppet would either simply refuse to retrieve the catalog for you due to unmet dependencies or will need multiple runs to reach the desired state. I ran into these problems while trying out the [sensu-puppet](https://github.com/sensu/sensu-puppet) module which relies on the json library for its providers to work. More details documented in [#17747](https://projects.puppetlabs.com/issues/17747) and other related tickets. Note : this applies for puppet 2.7.20, please refer to 3.x changelogs to see which 3.x version is this available in.  
 
 What we want:  
 1. Distribute the dependencies through our puppet modules, and  
@@ -38,7 +38,7 @@ Now with a relationship like
 
     Class["ruby::json"]->Sensu::Client[$::fqdn]
 
-where ruby::json simply installs the json library and sensu::client uses sensu_client_config provider under the hood, you can be assured that puppet will do the right thing by checking again for the existence of the json library when it comes across it in sensu_client_config, and reach the desired state. Many thanks to Jeff McCune, Josh Cooper & Dominic from Puppet Labs for their suggestions & consideration ! 
+where ruby::json simply installs the json library and sensu::client uses sensu_client_config provider under the hood, you can be assured that puppet will do the right thing by checking again for the existence of the json library when it comes across it in sensu_client_config, and reach the desired state. Many thanks to Jeff McCune, Josh Cooper from PL & Dominic for their suggestions & consideration ! 
 
 
 
