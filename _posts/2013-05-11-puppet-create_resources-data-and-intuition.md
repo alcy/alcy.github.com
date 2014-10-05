@@ -7,11 +7,11 @@ tags: []
 ---
 {% include JB/setup %}
 
-Sometimes, my intuition on modelling puppet resources does not map one to one with simple puppet constructs.
+Sometimes, modelling puppet resources is not intuitive enough to map one to one with simple puppet constructs.
 Puppet's [create_resources](http://docs.puppetlabs.com/references/latest/function.html#createresources) is one such simple construct,
-a neat way to well, create resources from a hash of data & params. Using it really helps streamlining your code, improves readability and generally is an organic way to go about creating multiple resources. 
+a neat way to create resources from a hash of data & params. Using it really helps streamlining puppet code, improves readability and is an organic way to go about creating multiple resources. 
 
-Back to the intuition part, say you want to create users and groups from your hiera data. We could start with the most simplest thing:
+Back to the intuition part, say you want to create users and groups from your hiera data. We could start with the simplest thing:
 {% highlight puppet %}
     class users {
       $user_defaults = { ensure => present }
@@ -72,7 +72,7 @@ Working with this kind of nested data wasnt that simple to model, but after play
 
 {% endhighlight %}
 
-Not as simple or elegant, but does what I need. I guess that's a tricky thing with DSLs, but nevertheless, eventually in puppet you can pretty much model your resources as complex as you want.  
+Not as simple or elegant, but does the job. I guess that's a tricky thing with DSLs, but nevertheless, eventually in puppet you can pretty much model your resources as complex as you want.  
       
       
 
