@@ -10,6 +10,7 @@
 }
 
 
+@media (min-width: 955px) {
 .container {  display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 0.6fr 1.4fr 1fr; 
@@ -26,6 +27,8 @@
   .christ { grid-area: christ; }
   
   .bible { grid-area: bible; }
+}
+  
 
   
 
