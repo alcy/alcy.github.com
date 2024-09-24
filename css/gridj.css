@@ -1,5 +1,15 @@
 @charset "UTF-8";
 
+@media (max-width: 768px) {
+    .container .jesus svg {
+        display: none;
+    }
+    .container .christ svg {
+        display: none;
+    }
+}
+
+
 .container {  display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 0.6fr 1.4fr 1fr; 
