@@ -1,0 +1,247 @@
+/* ============================================
+   TOP RIBBON - Desktop and Mobile
+   ============================================ */
+.nav-ribbon {
+    /* Fixed at top, full width */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+
+    /* Styling */
+    background-color: #fffff8;
+    border-bottom: 1px solid #ccc;
+    padding: 12px 15px;
+
+    /* Typography */
+    font-family: et-book, Palatino, "Palatino Linotype", Georgia, serif;
+    font-size: 1.1rem;
+    text-align: center;
+    color: #111;
+
+    /* Above content */
+    z-index: 1000;
+
+    /* Prevent text selection */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+
+    /* Flexbox for arrow layout */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Navigation text in center */
+.nav-ribbon .nav-text {
+    cursor: pointer;
+}
+
+/* Navigation arrows - remove underlines from links */
+.nav-ribbon a,
+.nav-aid a {
+    text-decoration: none;
+    background: none;
+}
+
+/* Navigation arrows */
+.nav-arrow {
+    font-size: 1.4rem;
+    color: #111;
+    padding: 0 8px;
+    transition: color 0.2s ease;
+}
+
+.nav-arrow:hover {
+    color: #a00;
+}
+
+.nav-arrow.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .nav-ribbon {
+        background-color: #1a1a1a;
+        border-bottom-color: #444;
+        color: #ddd;
+    }
+
+    .nav-arrow {
+        color: #ddd;
+    }
+
+    .nav-arrow:hover {
+        color: #ff6b6b;
+    }
+
+    .nav-arrow.disabled {
+        color: #444;
+    }
+}
+
+/* Add padding to body to account for fixed ribbon */
+body {
+    padding-top: 48px;
+}
+
+/* ============================================
+   NAVIGATION AID - "THE TALUS BONE"
+   (Hidden - using ribbon instead)
+   ============================================ */
+.nav-aid {
+    display: none;
+}
+
+/* ============================================
+   TREE CONTAINER - Navigation Tree
+   ============================================ */
+.tree-container {
+    /* Fixed positioning below the ribbon, centered */
+    position: fixed;
+    top: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    /* Core styling matching ribbon */
+    background-color: #fffff8;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 15px;
+
+    /* Size and scroll */
+    width: 320px;
+    max-height: 500px;
+    overflow-y: auto;
+
+    /* Shadow for depth */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+    /* Z-index below ribbon */
+    z-index: 999;
+
+    /* Hidden by default */
+    display: none;
+}
+
+.tree-container.visible {
+    display: block;
+}
+
+/* D3 Tree Styling - Tufte Aesthetic */
+.tree-container svg {
+    font-family: et-book, Palatino, "Palatino Linotype", Georgia, serif;
+    font-size: 11px;
+    user-select: none;
+}
+
+.tree-container .node circle {
+    cursor: pointer;
+    stroke-width: 1.5px;
+}
+
+.tree-container .node text {
+    cursor: pointer;
+    fill: #111;
+}
+
+/* Chapter links have underline on hover */
+.tree-container .node.chapter text:hover {
+    text-decoration: underline;
+}
+
+/* Current/highlighted chapter styling */
+.tree-container .node.current text {
+    font-weight: bold;
+    fill: #a00;
+}
+
+.tree-container .node.current circle {
+    fill: #a00;
+    stroke: #a00;
+}
+
+.tree-container .link {
+    fill: none;
+    stroke: #555;
+    stroke-opacity: 0.4;
+    stroke-width: 1.5px;
+}
+
+/* Dark mode support for tree */
+@media (prefers-color-scheme: dark) {
+    .tree-container {
+        background-color: #1a1a1a;
+        border-color: #444;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .tree-container .node text {
+        fill: #ddd;
+    }
+
+    .tree-container .node.current text {
+        fill: #ff6b6b;
+    }
+
+    .tree-container .node.current circle {
+        fill: #ff6b6b;
+        stroke: #ff6b6b;
+    }
+
+    .tree-container .link {
+        stroke: #888;
+    }
+}
+
+/* Mobile adjustments for tree */
+@media (max-width: 760px) {
+    .tree-container {
+        /* Full width on mobile */
+        left: 0;
+        right: 0;
+        width: 100%;
+        transform: none;
+        max-height: 400px;
+        padding: 12px;
+    }
+
+    .tree-container svg {
+        font-size: 10px;
+    }
+}
+
+/* ============================================
+   VERSE HIGHLIGHTING
+   ============================================ */
+/* Highlight effect for verse navigation */
+.verse-highlight {
+    background-color: rgba(255, 235, 59, 0.4);
+    transition: background-color 3.5s ease-out;
+    padding: 4px 2px;
+    border-radius: 3px;
+    display: inline;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+/* Fade out the highlight very slowly */
+.verse-highlight-fadeout {
+    background-color: rgba(255, 235, 59, 0);
+}
+
+/* Dark mode support for verse highlighting */
+@media (prefers-color-scheme: dark) {
+    .verse-highlight {
+        background-color: rgba(255, 193, 7, 0.3);
+    }
+
+    .verse-highlight-fadeout {
+        background-color: rgba(255, 193, 7, 0);
+    }
+}

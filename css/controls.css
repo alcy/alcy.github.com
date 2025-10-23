@@ -1,0 +1,12 @@
+/* Hide verse markers visually but keep them in DOM for navigation */
+span.verse {
+    display: none;
+}
+
+/* h3 for Hebrew letter headings in Psalm 119 */
+h3 {
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
