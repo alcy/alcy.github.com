@@ -359,3 +359,68 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('hashchange', () => {
     highlightVerse();
 });
+
+// ============================================================================
+// SWIPE NAVIGATION
+// ============================================================================
+
+// Swipe detection for mobile navigation
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+// Minimum swipe distance in pixels
+const minSwipeDistance = 80;
+
+// Get navigation URLs from the page
+function getNavigationUrls() {
+    const prevLink = document.querySelector('.nav-ribbon .nav-prev');
+    const nextLink = document.querySelector('.nav-ribbon .nav-next');
+
+    return {
+        prev: prevLink ? prevLink.getAttribute('href') : null,
+        next: nextLink ? nextLink.getAttribute('href') : null
+    };
+}
+
+// Handle touch start
+document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+
+// Handle touch end
+document.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleSwipe();
+}, { passive: true });
+
+// Determine swipe direction and navigate
+function handleSwipe() {
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+
+    // Only process horizontal swipes (more horizontal than vertical)
+    if (Math.abs(deltaX) < Math.abs(deltaY)) {
+        return; // This is a vertical swipe (scrolling), ignore it
+    }
+
+    // Check if swipe distance is sufficient
+    if (Math.abs(deltaX) < minSwipeDistance) {
+        return; // Swipe too short
+    }
+
+    const urls = getNavigationUrls();
+
+    // Swipe right = go to previous chapter
+    if (deltaX > 0 && urls.prev) {
+        window.location.href = urls.prev;
+    }
+
+    // Swipe left = go to next chapter
+    if (deltaX < 0 && urls.next) {
+        window.location.href = urls.next;
+    }
+}
