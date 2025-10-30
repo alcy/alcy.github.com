@@ -352,6 +352,10 @@ function highlightVerse() {
 
 // Run on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // Fade in the page content
+    document.body.style.opacity = '1';
+    document.body.style.transition = 'opacity 0.2s ease-in';
+
     highlightVerse();
 });
 
@@ -416,11 +420,21 @@ function handleSwipe() {
 
     // Swipe right = go to previous chapter
     if (deltaX > 0 && urls.prev) {
-        window.location.href = urls.prev;
+        // Add fade-out effect before navigation
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.15s ease-out';
+        setTimeout(() => {
+            window.location.href = urls.prev;
+        }, 150);
     }
 
     // Swipe left = go to next chapter
     if (deltaX < 0 && urls.next) {
-        window.location.href = urls.next;
+        // Add fade-out effect before navigation
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.15s ease-out';
+        setTimeout(() => {
+            window.location.href = urls.next;
+        }, 150);
     }
 }
