@@ -406,9 +406,12 @@ function handleSwipe() {
     const deltaX = touchEndX - touchStartX;
     const deltaY = touchEndY - touchStartY;
 
-    // Only process horizontal swipes (more horizontal than vertical)
-    if (Math.abs(deltaX) < Math.abs(deltaY)) {
-        return; // This is a vertical swipe (scrolling), ignore it
+    // Calculate swipe angle (degrees from horizontal)
+    const angle = Math.atan2(Math.abs(deltaY), Math.abs(deltaX)) * 180 / Math.PI;
+
+    // Only process swipes that are nearly horizontal (within 30 degrees)
+    if (angle > 30) {
+        return; // Too vertical, probably scrolling
     }
 
     // Check if swipe distance is sufficient
