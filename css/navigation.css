@@ -1,14 +1,4 @@
 /* ============================================
-   VIEW TRANSITIONS (Modern browsers)
-   ============================================ */
-@media (prefers-reduced-motion: no-preference) {
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-        animation-duration: 0.3s;
-    }
-}
-
-/* ============================================
    TOP RIBBON - Desktop and Mobile
    ============================================ */
 .nav-ribbon {
