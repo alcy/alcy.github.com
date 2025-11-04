@@ -217,6 +217,47 @@ body {
 }
 
 /* ============================================
+   BOTTOM NAVIGATION (truly inline, after last period)
+   ============================================ */
+.nav-ribbon-bottom {
+    /* Display inline with text */
+    display: inline-block;
+
+    /* Typography - MATCHES nav-ribbon exactly */
+    font-family: et-book, Palatino, "Palatino Linotype", Georgia, serif;
+    font-size: 1.1rem;
+    color: #111;
+
+    /* Prevent text selection */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+
+    /* Slight spacing from text */
+    margin-left: 0.25rem;
+    white-space: nowrap;
+}
+
+/* Navigation text in center */
+.nav-ribbon-bottom .nav-text {
+    cursor: pointer;
+    margin: 0 0.3rem;
+}
+
+/* Remove underlines from links */
+.nav-ribbon-bottom a {
+    text-decoration: none;
+    background: none;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .nav-ribbon-bottom {
+        color: #ddd;
+    }
+}
+
+/* ============================================
    VERSE HIGHLIGHTING
    ============================================ */
 /* Highlight effect for verse navigation */
