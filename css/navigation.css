@@ -64,26 +64,104 @@
     cursor: not-allowed;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .nav-ribbon {
-        background-color: #1a1a1a;
-        border-bottom-color: #444;
-        color: #ddd;
-    }
+/* Hamburger menu icon */
+.nav-menu {
+    font-size: 1.2rem;
+    color: #ccc;
+    cursor: pointer;
+    padding: 0 8px;
+    transition: color 0.2s ease;
+    user-select: none;
+    position: absolute;
+    left: 15px;
+}
 
-    .nav-arrow {
-        color: #ddd;
-    }
+.nav-menu:hover {
+    color: #a00;
+}
 
-    .nav-arrow:hover {
-        color: #ff6b6b;
-    }
-
-    .nav-arrow.disabled {
-        color: #444;
+/* On desktop, position menu at text margin (12.5% from left) */
+@media (min-width: 769px) {
+    .nav-menu {
+        left: 12.5%;
     }
 }
+
+/* Menu dropdown */
+.menu-dropdown {
+    position: fixed;
+    top: 48px;
+    left: 15px;
+    background-color: #fffff8;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 8px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 998;
+    display: none;
+    min-width: 150px;
+    font-family: et-book, Palatino, "Palatino Linotype", Georgia, serif;
+}
+
+.menu-dropdown.visible {
+    display: block;
+}
+
+/* On desktop, align dropdown with menu */
+@media (min-width: 769px) {
+    .menu-dropdown {
+        left: 12.5%;
+    }
+}
+
+.menu-option {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 1rem;
+    color: #111;
+}
+
+.menu-option:hover {
+    background-color: #f5f5f0;
+    color: #a00;
+}
+
+/* Verse toggle - don't highlight background on hover */
+.menu-option.verse-toggle {
+    cursor: default;
+}
+
+.menu-option.verse-toggle:hover {
+    background-color: transparent;
+    color: #111;
+}
+
+/* Toggle options container */
+.toggle-options {
+    float: right;
+    font-size: 0.9rem;
+    margin-left: 15px;
+}
+
+/* Individual toggle choices */
+.toggle-choice {
+    color: #ccc;
+    padding: 0 6px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.toggle-choice:hover {
+    color: #888;
+}
+
+.toggle-choice.active {
+    color: #111;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
 
 /* Add padding to body to account for fixed ribbon */
 body {

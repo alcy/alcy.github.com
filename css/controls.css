@@ -3,6 +3,19 @@ span.verse {
     display: none;
 }
 
+/* Show verse numbers when enabled */
+body.show-verses span.verse {
+    display: inline;
+}
+
+body.show-verses span.verse::before {
+    content: attr(data-verse-number);
+    font-size: 0.7rem;
+    vertical-align: super;
+    color: #888;
+    margin-right: 0.2rem;
+}
+
 /* h3 for Hebrew letter headings in Psalm 119 */
 h3 {
     font-size: 1em;

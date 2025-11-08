@@ -13,9 +13,22 @@
 
 <!-- TOP RIBBON - Mobile Only -->
 <div class="nav-ribbon" id="navRibbon" data-book="1 Chronicles" data-chapter="23">
+    <span class="nav-menu" id="navMenu">☰</span>
     <a href="1ch22.htm" class="nav-arrow nav-prev">←</a>
     <span class="nav-text">1 Chronicles 23</span>
     <a href="1ch24.htm" class="nav-arrow nav-next">→</a>
+</div>
+
+<!-- MENU DROPDOWN -->
+<div class="menu-dropdown" id="menuDropdown">
+    <div class="menu-option" id="aboutLink">About</div>
+    <div class="menu-option verse-toggle">
+        Verse Numbering
+        <span class="toggle-options">
+            <span class="toggle-choice" id="verseOn">On</span>
+            <span class="toggle-choice active" id="verseOff">Off</span>
+        </span>
+    </div>
 </div>
 
 <!-- THE TALUS BONE - Navigation Aid (Desktop) -->
@@ -45,6 +58,9 @@
 
 <!-- Navigation Script -->
 <script src="js/navigation.js"></script>
+
+<!-- Navigation Controls Script -->
+<script src="js/nav-controls.js"></script>
 
 </body>
 </html>
