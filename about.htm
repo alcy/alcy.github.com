@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About</title>
+    <link rel="stylesheet" type="text/css" href="css/gridj.css">
+    <link rel="stylesheet" type="text/css" href="css/controls.css">
+    <link rel="stylesheet" type="text/css" href="css/navigation.css">
+</head>
+
+<body>
+
+    <!-- TOP RIBBON -->
+    <div class="nav-ribbon" id="navRibbon">
+        <span class="nav-menu" id="navMenu">☰</span>
+        <span class="nav-text">About</span>
+    </div>
+
+    <!-- MENU DROPDOWN -->
+    <div class="menu-dropdown" id="menuDropdown">
+        <div class="menu-option" id="aboutLink">About</div>
+        <div class="menu-option verse-toggle">
+            Verse Numbering
+            <span class="toggle-options">
+                <span class="toggle-choice" id="verseOn">On</span>
+                <span class="toggle-choice active" id="verseOff">Off</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- THE TALUS BONE - Navigation Aid (Desktop) -->
+    <div class="nav-aid" id="navAid">
+        <span class="nav-text">About</span>
+    </div>
+
+    <!-- TREE CONTAINER (hidden by default) -->
+    <div class="tree-container" id="treeContainer">
+        <svg id="tree"></svg>
+    </div>
+
+    <article>
+        <h1>About</h1>
+
+        <section>
+            <p>Jesus says in <a href="mat10.htm#V8">Matthew 10:8</a>,</p>
+
+            <blockquote>
+                <p><span style="color: #a00;">"Freely you received, so freely give."</span></p>
+            </blockquote>
+
+            <p>While everyone has their reasons, I find it uncomfortable that so many Bible translations are copyrighted
+                and cannot be freely or easily reused. Secondly, even though there are great Bible apps and websites, I
+                haven't seen one that focuses on readability and navigation.</p>
+
+            <div class="epigraph">
+                <blockquote>
+                    <p>But God's word isn't chained.<label class="margin-toggle sidenote-number" for="epigraph-note">
+                    </label>
+                    <input class="margin-toggle" id="epigraph-note" type="checkbox"/>
+                    <span class="sidenote">
+                        <a href="2ti02.htm#V9" style="font-style: normal;">2 Timothy 2:9</a>
+                    </span></p>
+                </blockquote>
+            </div>
+
+            <p>This Bible website tries to address these issues, and uses the World English Bible translation
+                (Protestant Edition<label class="margin-toggle sidenote-number" for="translation-note">
+                </label>
+                <input class="margin-toggle" id="translation-note" type="checkbox" />
+                <span class="sidenote">
+                    <a
+                        href="https://ebible.org/find/show.php?id=engwebp">https://ebible.org/find/show.php?id=engwebp</a>
+                </span>).
+            </p>
+
+            <p>Inspired by the Tufte CSS project.<label class="margin-toggle sidenote-number" for="tufte-note">
+                </label>
+                <input class="margin-toggle" id="tufte-note" type="checkbox" />
+                <span class="sidenote">
+                    <a href="https://edwardtufte.github.io/tufte-css/">https://edwardtufte.github.io/tufte-css/</a>
+                </span>
+            </p>
+
+            <p><a href="gen01.htm" style="text-decoration: none; background: none;">Start Reading →</a></p>
+        </section>
+    </article>
+
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Bible Data -->
+    <script src="bible-data.js"></script>
+
+    <!-- Navigation Script -->
+    <script src="js/navigation.js"></script>
+
+    <!-- Navigation Controls Script -->
+    <script src="js/nav-controls.js"></script>
+
+</body>
+
+</html>
