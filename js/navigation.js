@@ -291,12 +291,52 @@ function update(event, source) {
                 });
 
                 // Then toggle the clicked book
+                const wasCollapsed = !d.children;
                 if (d.children) {
                     d.children = null;
                 } else {
                     d.children = d._children;
                 }
                 update(event, d);
+
+                // If we just expanded a book, scroll it into view with smooth animation
+                if (wasCollapsed) {
+                    setTimeout(() => {
+                        const bookNodes = treeContainer.querySelectorAll('.node');
+                        bookNodes.forEach(node => {
+                            const textContent = node.querySelector('text');
+                            if (textContent && textContent.textContent === d.data.name) {
+                                // Custom smooth scroll with easing
+                                const nodeRect = node.getBoundingClientRect();
+                                const containerRect = treeContainer.getBoundingClientRect();
+                                const startScroll = treeContainer.scrollTop;
+                                const targetScroll = startScroll + nodeRect.top - containerRect.top - (containerRect.height / 2) + (nodeRect.height / 2);
+                                const distance = targetScroll - startScroll;
+                                const duration = 600; // Smooth 600ms animation
+                                let startTime = null;
+
+                                function easeInOutCubic(t) {
+                                    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                                }
+
+                                function scrollStep(currentTime) {
+                                    if (startTime === null) startTime = currentTime;
+                                    const timeElapsed = currentTime - startTime;
+                                    const progress = Math.min(timeElapsed / duration, 1);
+                                    const ease = easeInOutCubic(progress);
+
+                                    treeContainer.scrollTop = startScroll + distance * ease;
+
+                                    if (progress < 1) {
+                                        requestAnimationFrame(scrollStep);
+                                    }
+                                }
+
+                                requestAnimationFrame(scrollStep);
+                            }
+                        });
+                    }, 300); // Wait for D3 transition to complete
+                }
             }
         });
 
