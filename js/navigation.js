@@ -188,6 +188,14 @@ function update(event, source) {
             }
             // Book nodes (depth 1): toggle expand/collapse
             else if (d.depth === 1) {
+                // First, collapse all other books (accordion behavior)
+                root.children.forEach(book => {
+                    if (book !== d && book.children) {
+                        book.children = null;
+                    }
+                });
+
+                // Then toggle the clicked book
                 if (d.children) {
                     d.children = null;
                 } else {
