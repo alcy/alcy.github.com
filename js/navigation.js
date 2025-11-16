@@ -278,6 +278,14 @@ function update(event, source) {
                 // First, collapse all other books (accordion behavior)
                 root.children.forEach(book => {
                     if (book !== d && book.children) {
+                        // If collapsing Psalms, also collapse all its groups
+                        if (book.data.name === 'Psalms') {
+                            book.children.forEach(group => {
+                                if (group.children) {
+                                    group.children = null;
+                                }
+                            });
+                        }
                         book.children = null;
                     }
                 });
