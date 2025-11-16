@@ -88,6 +88,27 @@ const margin = {top: 10, right: 10, bottom: 10, left: 40};
 const tree = d3.tree().nodeSize([dx, dy]);
 const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
 
+// Restructure Psalms into book groups for better navigation
+const psalmsBook = bibleData.children.find(book => book.name === 'Psalms');
+if (psalmsBook && psalmsBook.children) {
+    const allChapters = psalmsBook.children;
+    const groups = [
+        { name: '1-41', start: 1, end: 41 },
+        { name: '42-72', start: 42, end: 72 },
+        { name: '73-89', start: 73, end: 89 },
+        { name: '90-106', start: 90, end: 106 },
+        { name: '107-150', start: 107, end: 150 }
+    ];
+
+    psalmsBook.children = groups.map(group => ({
+        name: group.name,
+        children: allChapters.filter(ch => {
+            const chNum = parseInt(ch.name);
+            return chNum >= group.start && chNum <= group.end;
+        })
+    }));
+}
+
 const root = d3.hierarchy(bibleData);
 
 root.x0 = 0;
@@ -110,7 +131,23 @@ root.descendants().forEach((d, i) => {
             d.children = null;
         }
     } else if (d.depth === 2) {
-        // Chapter level: always collapsed initially
+        // For Psalms book groups, expand if current book is Psalms
+        // For regular books, this is the chapter level (always collapsed)
+        const isPsalmsGroup = d.parent && d.parent.data.name === 'Psalms';
+        if (isPsalmsGroup && currentBook === 'Psalms') {
+            // Check if current chapter falls in this group's range
+            const groupRange = d.data.name.split('-').map(n => parseInt(n));
+            const currentChNum = parseInt(currentChapter);
+            if (currentChNum >= groupRange[0] && currentChNum <= groupRange[1]) {
+                d.children = d._children;
+            } else {
+                d.children = null;
+            }
+        } else {
+            d.children = null;
+        }
+    } else if (d.depth === 3) {
+        // Psalms chapter level: always collapsed
         d.children = null;
     }
 });
@@ -140,6 +177,15 @@ function update(event, source) {
     // Compute the new tree layout
     tree(root);
 
+    // Adjust position for expanded Psalms groups to extend their branch
+    root.descendants().forEach(d => {
+        const isPsalmsGroup = d.depth === 2 && d.parent && d.parent.data.name === 'Psalms';
+        if (isPsalmsGroup && d.children) {
+            // Shift expanded groups to the right by adding to y position
+            d.y += 35;
+        }
+    });
+
     let left = root;
     let right = root;
     root.eachBefore(node => {
@@ -162,11 +208,22 @@ function update(event, source) {
     const nodeEnter = node.enter().append("g")
         .attr("class", d => {
             let classes = "node";
-            // Add chapter class for chapter nodes
+            // Add chapter class for chapter nodes (depth 2 for regular books, depth 3 for Psalms)
             if (d.depth === 2) {
+                const isPsalmsGroup = d.parent && d.parent.data.name === 'Psalms';
+                if (!isPsalmsGroup) {
+                    // Regular book chapter
+                    classes += " chapter";
+                    // Mark current chapter
+                    if (d.parent.data.name === currentBook && d.data.name === currentChapter) {
+                        classes += " current";
+                    }
+                }
+            } else if (d.depth === 3) {
+                // Psalms chapter
                 classes += " chapter";
-                // Mark current chapter
-                if (d.parent.data.name === currentBook && d.data.name === currentChapter) {
+                // Mark current chapter (check grandparent for book name)
+                if (d.parent.parent.data.name === currentBook && d.data.name === currentChapter) {
                     classes += " current";
                 }
             }
@@ -176,15 +233,45 @@ function update(event, source) {
         .attr("fill-opacity", 0)
         .attr("stroke-opacity", 0)
         .on("click", (event, d) => {
-            // Chapter nodes (depth 2): navigate to chapter
-            if (d.depth === 2) {
-                const bookName = d.parent.data.name;
+            // Psalms chapter nodes (depth 3): navigate to chapter
+            if (d.depth === 3) {
+                const bookName = d.parent.parent.data.name; // Psalms
                 const chapterNum = d.data.name;
                 const url = getChapterUrl(bookName, chapterNum);
                 if (url) {
                     window.location.href = url;
                 }
                 event.stopPropagation();
+            }
+            // Depth 2: could be Psalms groups (expandable) or regular chapters (navigable)
+            else if (d.depth === 2) {
+                const isPsalmsGroup = d.parent && d.parent.data.name === 'Psalms';
+
+                if (isPsalmsGroup) {
+                    // Psalms group: collapse all other Psalms groups (accordion behavior)
+                    d.parent.children.forEach(group => {
+                        if (group !== d && group.children) {
+                            group.children = null;
+                        }
+                    });
+
+                    // Then toggle the clicked group
+                    if (d.children) {
+                        d.children = null;
+                    } else {
+                        d.children = d._children;
+                    }
+                    update(event, d);
+                } else {
+                    // Regular book chapter: navigate to chapter
+                    const bookName = d.parent.data.name;
+                    const chapterNum = d.data.name;
+                    const url = getChapterUrl(bookName, chapterNum);
+                    if (url) {
+                        window.location.href = url;
+                    }
+                    event.stopPropagation();
+                }
             }
             // Book nodes (depth 1): toggle expand/collapse
             else if (d.depth === 1) {
@@ -212,13 +299,37 @@ function update(event, source) {
 
     nodeEnter.append("text")
         .attr("dy", "0.31em")
-        .attr("x", d => d._children ? -6 : 6)
-        .attr("text-anchor", d => d._children ? "end" : "start")
-        .text(d => d.data.name)
+        .attr("x", d => {
+            // Psalms groups appear on the right
+            const isPsalmsGroup = d.depth === 2 && d.parent && d.parent.data.name === 'Psalms';
+            if (isPsalmsGroup) return 6;
+            return d._children ? -6 : 6;
+        })
+        .attr("text-anchor", d => {
+            const isPsalmsGroup = d.depth === 2 && d.parent && d.parent.data.name === 'Psalms';
+            if (isPsalmsGroup) return "start";
+            return d._children ? "end" : "start";
+        })
+        .text(d => {
+            // Hide Psalms group names when expanded
+            const isPsalmsGroup = d.depth === 2 && d.parent && d.parent.data.name === 'Psalms';
+            if (isPsalmsGroup && d.children) return '';
+            return d.data.name;
+        })
         .clone(true).lower()
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
         .attr("stroke", "white");
+
+    // Update text for all nodes (hide Psalms group names when expanded)
+    // Use selectAll to update both the main text and the cloned outline text
+    node.merge(nodeEnter).selectAll("text")
+        .text(d => {
+            // Hide Psalms group names when expanded
+            const isPsalmsGroup = d.depth === 2 && d.parent && d.parent.data.name === 'Psalms';
+            if (isPsalmsGroup && d.children) return '';
+            return d.data.name;
+        });
 
     // Transition nodes to their new position
     node.merge(nodeEnter).transition(transition)
