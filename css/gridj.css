@@ -532,6 +532,10 @@ label.margin-toggle:not(.sidenote-number) {
         cursor: pointer;
     }
 
+    label.sidenote-number::after {
+        text-decoration: underline;
+    }
+
     /* Psalm subtitle - contain floated sidenotes and prevent overlap */
     .psalm-subtitle {
         overflow: hidden;
