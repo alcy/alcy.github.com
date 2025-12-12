@@ -533,7 +533,7 @@ label.margin-toggle:not(.sidenote-number) {
     }
 
     label.sidenote-number::after {
-        text-decoration: underline;
+        border-bottom: 1px solid currentColor;
     }
 
     /* Psalm subtitle - contain floated sidenotes and prevent overlap */
