@@ -536,13 +536,12 @@ label.margin-toggle:not(.sidenote-number) {
         border-bottom: 1px solid currentColor;
     }
 
-    /* Psalm subtitle - contain floated sidenotes and prevent overlap */
-    .psalm-subtitle {
-        overflow: hidden;
-    }
-
+    /* Psalm subtitle - clear float when sidenote expanded */
     .psalm-subtitle .margin-toggle:checked + .sidenote {
         margin-bottom: 2rem;
+        float: none;
+        display: block;
+        clear: both;
     }
 
     div.table-wrapper,
