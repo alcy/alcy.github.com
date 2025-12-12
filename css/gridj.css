@@ -532,6 +532,15 @@ label.margin-toggle:not(.sidenote-number) {
         cursor: pointer;
     }
 
+    /* Psalm subtitle - contain floated sidenotes and prevent overlap */
+    .psalm-subtitle {
+        overflow: hidden;
+    }
+
+    .psalm-subtitle .margin-toggle:checked + .sidenote {
+        margin-bottom: 2rem;
+    }
+
     div.table-wrapper,
     table {
         width: 85%;
