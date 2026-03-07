@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Psalmist">
+  <title>Psalmist</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script type="module" crossorigin src="/psalmist/assets/index-CCFSNQbD.js"></script>
+  <link rel="stylesheet" crossorigin href="/psalmist/assets/index-CfMTYFeP.css">
+</head>
+<body>
+
+<div id="psalm-panel">
+  <div id="psalm-nav-ribbon">
+    <span class="nav-arrow" id="psalm-prev">&larr;</span>
+    <span class="nav-text" id="psalm-nav-text">Psalm 57</span>
+    <span class="nav-arrow" id="psalm-next">&rarr;</span>
+  </div>
+  <div id="psalm-tree-container"></div>
+  <article id="psalm-text"></article>
+  <canvas id="gesture-canvas"></canvas>
+</div>
+
+<div id="resize-handle"></div>
+
+<div id="canvas-panel">
+  <canvas id="draw-canvas"></canvas>
+
+  <div id="toolbar">
+    <div class="color-dot active" data-color="#D4A017" style="background:#D4A017"></div>
+    <div class="color-dot" data-color="#C0392B" style="background:#C0392B"></div>
+    <div class="color-dot" data-color="#2874A6" style="background:#2874A6"></div>
+    <div class="color-dot" data-color="#1E8449" style="background:#1E8449"></div>
+    <div class="color-dot" data-color="#7D3C98" style="background:#7D3C98"></div>
+    <div class="color-dot" data-color="#E67E22" style="background:#E67E22"></div>
+    <div class="color-dot" data-color="#566573" style="background:#566573"></div>
+    <div class="color-dot" data-color="#F0E6D3" style="background:#F0E6D3"></div>
+    <div class="toolbar-sep"></div>
+    <button class="toolbar-btn" id="btn-draw" data-active="false">draw</button>
+    <div class="toolbar-sep"></div>
+    <button class="toolbar-btn" id="btn-undo">undo</button>
+    <button class="toolbar-btn" id="btn-clear">clear</button>
+  </div>
+</div>
+
+</body>
+</html>
