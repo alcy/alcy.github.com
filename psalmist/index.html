@@ -8,8 +8,8 @@
   <meta name="apple-mobile-web-app-title" content="Psalmist">
   <title>Psalmist</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script type="module" crossorigin src="/psalmist/assets/index-HKCA06BW.js"></script>
-  <link rel="stylesheet" crossorigin href="/psalmist/assets/index-CfMTYFeP.css">
+  <script type="module" crossorigin src="/psalmist/assets/index-CdAjo45u.js"></script>
+  <link rel="stylesheet" crossorigin href="/psalmist/assets/index-WU17kCar.css">
 </head>
 <body>
 
@@ -29,20 +29,21 @@
 <div id="canvas-panel">
   <canvas id="draw-canvas"></canvas>
 
-  <div id="toolbar">
-    <div class="color-dot active" data-color="#D4A017" style="background:#D4A017"></div>
-    <div class="color-dot" data-color="#C0392B" style="background:#C0392B"></div>
-    <div class="color-dot" data-color="#2874A6" style="background:#2874A6"></div>
-    <div class="color-dot" data-color="#1E8449" style="background:#1E8449"></div>
-    <div class="color-dot" data-color="#7D3C98" style="background:#7D3C98"></div>
-    <div class="color-dot" data-color="#E67E22" style="background:#E67E22"></div>
-    <div class="color-dot" data-color="#566573" style="background:#566573"></div>
-    <div class="color-dot" data-color="#F0E6D3" style="background:#F0E6D3"></div>
-    <div class="toolbar-sep"></div>
-    <button class="toolbar-btn" id="btn-draw" data-active="false">draw</button>
-    <div class="toolbar-sep"></div>
+  <button id="toolbar-toggle">&#9776;</button>
+  <div id="toolbar" class="collapsed">
+    <div id="color-picker-wrap">
+      <input type="color" id="color-picker" value="#D4A017">
+      <div id="color-swatch" style="background:#D4A017"></div>
+    </div>
+    <div class="toolbar-sep-h"></div>
     <button class="toolbar-btn" id="btn-undo">undo</button>
     <button class="toolbar-btn" id="btn-clear">clear</button>
+    <div class="toolbar-sep-h"></div>
+    <button class="toolbar-btn" id="btn-deeper">deeper</button>
+    <button class="toolbar-btn" id="btn-surface">surface</button>
+    <div class="toolbar-sep-h"></div>
+    <button class="toolbar-btn" id="btn-font-down">A−</button>
+    <button class="toolbar-btn" id="btn-font-up">A+</button>
   </div>
 </div>
 
