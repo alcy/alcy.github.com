@@ -844,6 +844,10 @@
             return inside;
         }
 
+        sanitizeDraggedWord(word) {
+            return String(word || '').replace(/[.,;:!?'"“”‘’()\[\]\-–—…]/g, '');
+        }
+
         highlightAndAfford(wordEls) {
             wordEls.forEach((element) => {
                 element.classList.add('word-selected');
@@ -866,8 +870,8 @@
             document.body.appendChild(handle);
 
             const phrase = Array.from(wordEls).map(function(element) {
-                return (element.dataset.word || '').replace(/[.,;:!?'"()\-\u2014]/g, '');
-            }).filter(Boolean).join(' ');
+                return this.sanitizeDraggedWord(element.dataset.word);
+            }, this).filter(Boolean).join(' ');
 
             let dragging = false;
             let ghost = null;
