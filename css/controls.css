@@ -115,9 +115,9 @@ body.meditation-mode .menu-option.verse-toggle {
 }
 
 .meditation-quote {
-    margin: 1.4rem 0;
-    padding-left: 1rem;
-    border-left: 1px solid #d7d0c4;
+    margin: 0.35rem 0 0.85rem;
+    padding-left: 0;
+    border-left: 0;
 }
 
 .meditation-verse-block {
@@ -127,8 +127,8 @@ body.meditation-mode .menu-option.verse-toggle {
     color: #111;
 }
 
-.meditation-verse-block.is-quoted {
-    font-style: italic;
+.meditation-quote .meditation-verse-block {
+    margin-bottom: 0.15rem;
 }
 
 .meditation-verse-block.is-continuation {
