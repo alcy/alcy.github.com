@@ -1,4 +1,5 @@
 (function() {
+    const STACKED_LAYOUT_BREAKPOINT = 700;
     const DEFAULT_TEXT_PANEL_WIDTH = 38;
     const DEFAULT_TEXT_PANEL_HEIGHT = 44;
     const MIN_TEXT_PANEL_WIDTH = 20;
@@ -556,7 +557,7 @@
     }
 
     function isStackedLayout() {
-        return window.matchMedia('(max-width: 900px)').matches;
+        return window.matchMedia('(max-width: ' + STACKED_LAYOUT_BREAKPOINT + 'px)').matches;
     }
 
     function clamp(value, min, max) {
