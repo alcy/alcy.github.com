@@ -420,7 +420,7 @@
             state.canvas.addText(detail.phrase, detail.x, detail.y, detail.color);
         });
 
-        state.toolbarToggle.addEventListener('click', function() {
+        bindToolbarAction(state.toolbarToggle, function() {
             state.toolbar.classList.toggle('collapsed');
         });
 
@@ -431,26 +431,26 @@
             state.gesture.setColor(color);
         });
 
-        state.btnUndo.addEventListener('click', function() {
+        bindToolbarAction(state.btnUndo, function() {
             state.canvas.undo();
         });
 
-        state.btnClear.addEventListener('click', function() {
+        bindToolbarAction(state.btnClear, function() {
             state.canvas.clearAll();
             updateSurfaceButton();
         });
 
-        state.btnDeeper.addEventListener('click', function() {
+        bindToolbarAction(state.btnDeeper, function() {
             state.canvas.goDeeper();
             updateSurfaceButton();
         });
 
-        state.btnSurface.addEventListener('click', function() {
+        bindToolbarAction(state.btnSurface, function() {
             state.canvas.goSurface();
             updateSurfaceButton();
         });
 
-        state.btnFontDown.addEventListener('click', function() {
+        bindToolbarAction(state.btnFontDown, function() {
             if (state.canvas.selectedNode) {
                 state.canvas.selectedNode.fontSize = Math.max(
                     8,
@@ -461,7 +461,7 @@
             }
         });
 
-        state.btnFontUp.addEventListener('click', function() {
+        bindToolbarAction(state.btnFontUp, function() {
             if (state.canvas.selectedNode) {
                 state.canvas.selectedNode.fontSize = Math.min(
                     72,
@@ -486,9 +486,26 @@
     }
 
     function bindResizeHandle() {
+        function stopResizing() {
+            if (!state.isResizing) {
+                return;
+            }
+
+            state.isResizing = false;
+            document.body.style.cursor = '';
+            state.canvas.resize();
+            state.gesture.resize();
+        }
+
         state.resizeHandle.addEventListener('pointerdown', function(event) {
+            const isMouse = event.pointerType === 'mouse';
+            const isPen = event.pointerType === 'pen';
+
+            if (!isMouse && !isPen) {
+                return;
+            }
+
             state.isResizing = true;
-            state.resizeHandle.setPointerCapture(event.pointerId);
             document.body.style.cursor = isStackedLayout() ? 'row-resize' : 'col-resize';
             event.preventDefault();
         });
@@ -509,14 +526,26 @@
         });
 
         document.addEventListener('pointerup', function() {
-            if (!state.isResizing) {
-                return;
-            }
+            stopResizing();
+        });
 
-            state.isResizing = false;
-            document.body.style.cursor = '';
-            state.canvas.resize();
-            state.gesture.resize();
+        document.addEventListener('pointercancel', function() {
+            stopResizing();
+        });
+
+        window.addEventListener('blur', function() {
+            stopResizing();
+        });
+    }
+
+    function bindToolbarAction(element, handler) {
+        if (!element) {
+            return;
+        }
+
+        element.addEventListener('pointerup', function(event) {
+            event.preventDefault();
+            handler(event);
         });
     }
 

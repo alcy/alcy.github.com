@@ -64,6 +64,7 @@ body.meditation-mode .menu-option.verse-toggle {
     background: #fffff8;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
+    z-index: 2;
 }
 
 .meditation-text {
@@ -152,6 +153,7 @@ body.show-verses .meditation-verse-num {
     padding: 0.05em 0;
     border-radius: 2px;
     transition: background-color 0.15s ease;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -245,6 +247,7 @@ body.show-verses .meditation-verse-num {
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.04), transparent 35%),
         radial-gradient(circle at bottom right, rgba(212, 160, 23, 0.08), transparent 28%),
         #16120f;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -253,8 +256,14 @@ body.show-verses .meditation-verse-num {
     inset: 0;
     width: 100%;
     height: 100%;
+    cursor: grab;
     touch-action: none;
+    -webkit-user-select: none;
     user-select: none;
+}
+
+.meditation-draw-canvas:active {
+    cursor: grabbing;
 }
 
 .meditation-toolbar-toggle {
@@ -273,6 +282,11 @@ body.show-verses .meditation-verse-num {
     line-height: 1;
     cursor: pointer;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .meditation-toolbar {
@@ -288,6 +302,10 @@ body.show-verses .meditation-verse-num {
     background: rgba(22, 18, 15, 0.86);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -301,6 +319,7 @@ body.show-verses .meditation-verse-num {
     position: relative;
     width: 32px;
     height: 32px;
+    cursor: pointer;
 }
 
 .meditation-color-picker {
@@ -335,10 +354,13 @@ body.show-verses .meditation-verse-num {
     font-size: 0.9rem;
     cursor: pointer;
     padding: 6px 8px;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
     white-space: nowrap;
 }
 
-.meditation-toolbar-btn:hover {
+.meditation-toolbar-btn:hover,
+.meditation-toolbar-btn:active {
     color: rgba(255, 255, 255, 0.9);
 }
 
