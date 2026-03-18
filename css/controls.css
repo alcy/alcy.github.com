@@ -93,10 +93,10 @@ body.meditation-mode .menu-option.verse-toggle {
 
 .meditation-heading.h3 {
     font-style: italic;
-    font-weight: 400;
-    font-size: 1.3rem;
-    line-height: 1.1;
-    margin: 1.8rem 0 0.9rem;
+    font-weight: bold;
+    font-size: 1em;
+    line-height: 1;
+    margin: 1.5em 0 0.5em;
 }
 
 .meditation-subtitle {
@@ -110,8 +110,13 @@ body.meditation-mode .menu-option.verse-toggle {
 }
 
 .meditation-subtitle.psalm-subtitle {
-    font-size: 1.05rem;
-    line-height: 1.35;
+    font-style: normal;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #111;
+    line-height: 1;
 }
 
 .meditation-quote {
@@ -167,6 +172,14 @@ body.show-verses .meditation-verse-num {
 
 .meditation-shell .word.word-strong {
     font-weight: bold;
+}
+
+.meditation-shell .selah {
+    display: inline-block;
+    font-style: italic;
+    color: #888;
+    font-size: 0.9em;
+    margin-left: 1em;
 }
 
 .meditation-shell .word.word-selected {

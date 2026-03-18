@@ -264,7 +264,7 @@
         const paragraph = document.createElement('p');
         paragraph.className = 'meditation-subtitle ' +
             (sourceSubtitle.classList.contains('psalm-subtitle') ? 'psalm-subtitle' : 'subtitle');
-        paragraph.textContent = sourceSubtitle.textContent.trim();
+        paragraph.textContent = normalizeTextContent(sourceSubtitle.textContent);
         return paragraph;
     }
 
@@ -313,6 +313,11 @@
         if (node.tagName === 'BR') {
             const block = ensureBlock(localState);
             block.appendChild(document.createElement('br'));
+            return;
+        }
+
+        if (node.classList.contains('selah')) {
+            appendSelah(localState, node);
             return;
         }
 
@@ -397,6 +402,21 @@
             block.dataset.renderable = 'true';
             block.appendChild(word);
         });
+    }
+
+    function appendSelah(localState, sourceNode) {
+        const block = ensureBlock(localState);
+        const selah = document.createElement('span');
+        selah.className = 'selah meditation-selah';
+        selah.textContent = normalizeTextContent(sourceNode.textContent);
+        block.dataset.renderable = 'true';
+        block.appendChild(selah);
+    }
+
+    function normalizeTextContent(text) {
+        return String(text || '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     function flushBlock(localState) {
