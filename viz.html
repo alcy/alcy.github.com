@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Gospel of Mark — Pulse v6</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1410;
+    color: #d4c5a9;
+    font-family: 'Georgia', serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 30px 20px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: #c8b080;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: #8a7a5a;
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+  #pulse-container {
+    width: 100%;
+    max-width: 1100px;
+  }
+  svg { overflow: visible; }
+  .chapter-num {
+    font-size: 13px;
+    fill: #c8b080;
+    text-anchor: middle;
+    font-weight: bold;
+    font-family: 'Georgia', serif;
+  }
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #8a7a5a;
+  }
+  .legend-swatch {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+  }
+  .legend-swatch-dash {
+    width: 20px;
+    height: 0px;
+    border-top: 2px dashed;
+    opacity: 0.5;
+  }
+  .tooltip {
+    position: absolute;
+    background: #2a2218;
+    border: 1px solid #4a3a28;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #d4c5a9;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-family: 'Georgia', serif;
+    line-height: 1.6;
+    max-width: 280px;
+    z-index: 10;
+  }
+  .tooltip .ch-title { font-weight: bold; color: #c8b080; }
+  .tooltip .cr-val { color: #e8a040; }
+  .tooltip .absent { color: #e05050; font-style: italic; }
+  .tooltip .lone { color: #e0a040; }
+</style>
+</head>
+<body>
+
+<h1>THE GOSPEL OF MARK</h1>
+<p class="subtitle">a pulse of narrative tension across sixteen chapters &mdash; with higher-order structure</p>
+
+<div id="pulse-container"></div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#b83030;"></div>Jesus</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#3a7abf;"></div>Disciples</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#b8a030;"></div>Crowd</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#8844aa;"></div>Opposition</div>
+  <div class="legend-item"><div style="width:10px;height:10px;background:#d4af60;transform:rotate(45deg);margin-right:-2px;opacity:0.75;"></div>faithful face</div>
+  <div class="legend-item"><div style="width:10px;height:10px;background:#7a6a6a;transform:rotate(45deg);margin-right:-2px;opacity:0.75;"></div>antagonist face</div>
+  <div class="legend-item"><div class="legend-swatch-dash" style="border-color:#3a7abf;"></div><span style="font-style:italic;">absence</span></div>
+  <div class="legend-item"><div style="width:8px;height:8px;border:1.5px solid #e8a040;border-radius:1px;transform:rotate(45deg);margin-right:-2px;opacity:0.6;"></div><span style="font-style:italic;">3-cell</span></div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+const data = {
+  chapters: Array.from({length: 16}, (_, i) => i + 1),
+  cr: {1:10.58,2:10.51,3:9.39,4:11.61,5:8.48,6:10.79,7:10.70,8:11.58,
+       9:12.79,10:12.73,11:10.30,12:11.94,13:13.67,14:12.22,15:9.27,16:8.73},
+  has3cells: {2: "paralytic healing", 5: "Jairus\u2019s daughter", 9: "transfiguration + healing", 14: "arrest", 15: "Barabbas trial + crucifixion"},
+  // Chapters where God's voice speaks — vertical bar gets a heavenly glow
+  godChapters: [1, 9],
+  titles: {
+    1:"Jesus & His Mission",2:"Authority & Love",3:"Mystery of Good News",
+    4:"The Word of God",5:"From Death to Life",6:"Jesus: Man & God",
+    7:"Responding to the Word",8:"Godliness",9:"Transfiguration & Faith",
+    10:"The Cost of Following",11:"Triumphal Entry",12:"Temple Teachings",
+    13:"Olivet Discourse",14:"Betrayal & Trial",15:"Crucifixion",16:"Resurrection"
+  },
+  streams: {
+    jesus: {
+      color: "#b83030", name: "Jesus",
+      showGaps: false,
+      values: {1:10.58,2:10.51,3:9.39,4:11.61,5:8.48,6:10.79,7:10.70,8:11.58,
+               9:12.79,10:12.73,11:10.30,12:11.94,13:13.67,14:12.22,15:9.27,16:8.73}
+    },
+    disciples: {
+      color: "#3a7abf", name: "Disciples",
+      showGaps: true,
+      values: {1:4.84,2:4.05,3:2.45,4:4.96,5:2.38,6:8.99,7:2.94,8:6.37,
+               9:5.91,10:6.71,11:6.67,12:1.30,13:8.45,14:5.99,15:null,16:8.16}
+    },
+    crowd: {
+      color: "#b8a030", name: "Crowd",
+      showGaps: false,
+      values: {1:6.96,2:2.88,3:5.89,4:4.13,5:5.34,6:5.21,7:3.09,8:4.03,
+               9:null,10:4.51,11:4.68,12:4.04,13:null,14:4.96,15:4.63,16:null}
+    },
+    opposition: {
+      color: "#8844aa", name: "Opposition",
+      showGaps: false,
+      values: {1:null,2:5.22,3:3.48,4:null,5:null,6:null,7:4.29,8:1.39,
+               9:null,10:1.23,11:4.69,12:5.61,13:null,14:5.14,15:6.60,16:null}
+    }
+  },
+  // tone: "warm" = faithful/positive (gold), "dark" = antagonist (ashen)
+  faces: {
+    1:  [{name:"leper", val:0.29, tone:"warm"}, {name:"God's voice", val:1.41, tone:"warm"}],
+    2:  [{name:"Levi", val:1.17, tone:"warm"}, {name:"paralytic & friends", val:1.92, tone:"warm"}],
+    3:  [{name:"withered hand man", val:0.98, tone:"warm"}, {name:"unclean spirits", val:3.22, tone:"dark"}],
+    4:  [{name:"sea & storm", val:2.14, tone:"warm"}],
+    5:  [{name:"bleeding woman", val:1.31, tone:"warm"}, {name:"demoniac", val:7.15, tone:"warm"}, {name:"Jairus", val:2.44, tone:"warm"}],
+    6:  [{name:"Gennesaret people", val:0.00, tone:"warm"}, {name:"Herod", val:6.23, tone:"dark"}, {name:"Herodias", val:2.32, tone:"dark"}],
+    7:  [{name:"Syrophoenician woman", val:1.67, tone:"warm"}, {name:"deaf man", val:0.00, tone:"warm"}],
+    8:  [{name:"blind man", val:0.00, tone:"warm"}],
+    9:  [{name:"God's voice", val:0.00, tone:"warm"}, {name:"epileptic boy's father", val:3.40, tone:"warm"}],
+    10: [{name:"Bartimaeus", val:3.85, tone:"warm"}, {name:"rich man", val:1.94, tone:"warm"}, {name:"children", val:2.97, tone:"warm"}],
+    11: [{name:"Peter", val:1.90, tone:"warm"}, {name:"temple merchants", val:2.73, tone:"dark"}],
+    12: [{name:"widow", val:1.23, tone:"warm"}, {name:"scribe", val:1.97, tone:"warm"}, {name:"Sadducees", val:1.04, tone:"dark"}],
+    13: [{name:"persecutors", val:0.31, tone:"dark"}, {name:"Son of Man", val:3.20, tone:"warm"}],
+    14: [{name:"anointing woman", val:0.00, tone:"warm"}, {name:"Judas", val:3.27, tone:"dark"}, {name:"high priest", val:2.01, tone:"dark"}],
+    15: [{name:"Simon of Cyrene", val:0.00, tone:"warm"}, {name:"centurion", val:3.31, tone:"warm"}, {name:"Joseph of Arimathea", val:4.26, tone:"warm"}, {name:"Barabbas", val:1.47, tone:"dark"}],
+    16: [{name:"angel at the tomb", val:3.46, tone:"warm"}, {name:"Mary Magdalene", val:5.34, tone:"warm"}],
+  }
+};
+
+const streamOrder = ["jesus", "disciples", "crowd", "opposition"];
+const tooltip = d3.select("#tooltip");
+
+const margin = {top: 30, right: 40, bottom: 50, left: 50};
+const W = 1100 - margin.left - margin.right;
+const H = 400 - margin.top - margin.bottom;
+
+const svg = d3.select("#pulse-container")
+  .append("svg")
+  .attr("viewBox", `0 0 1100 400`)
+  .attr("width", "100%")
+  .append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+const x = d3.scaleLinear().domain([1, 16]).range([0, W]);
+const y = d3.scaleLinear().domain([0, 15]).range([H, 0]);
+
+// Grid lines — with heavenly glow for God's voice chapters
+data.chapters.forEach(ch => {
+  const isGod = data.godChapters.includes(ch);
+
+  if (isGod) {
+    // Warm white-gold glow behind the grid line
+    svg.append("line")
+      .attr("x1", x(ch)).attr("x2", x(ch))
+      .attr("y1", -10).attr("y2", H + 15)
+      .attr("stroke", "#fffbe0")
+      .attr("stroke-width", 18)
+      .attr("opacity", 0)
+      .style("filter", "blur(12px)")
+      .transition().duration(1200).delay(2200 + ch * 80)
+      .attr("opacity", 0.08);
+
+    svg.append("line")
+      .attr("x1", x(ch)).attr("x2", x(ch))
+      .attr("y1", -5).attr("y2", H + 15)
+      .attr("stroke", "#fff8c0")
+      .attr("stroke-width", 6)
+      .attr("opacity", 0)
+      .style("filter", "blur(4px)")
+      .transition().duration(1200).delay(2200 + ch * 80)
+      .attr("opacity", 0.12);
+  }
+
+  // Normal grid line on top
+  svg.append("line")
+    .attr("x1", x(ch)).attr("x2", x(ch))
+    .attr("y1", 0).attr("y2", H + 15)
+    .attr("stroke", isGod ? "#3a3525" : "#2a2218")
+    .attr("stroke-width", 1);
+});
+
+// CR=10 reference
+svg.append("line")
+  .attr("x1", 0).attr("x2", W)
+  .attr("y1", y(10)).attr("y2", y(10))
+  .attr("stroke", "#3a3020").attr("stroke-width", 0.5)
+  .attr("stroke-dasharray", "4,4");
+svg.append("text")
+  .attr("x", W + 5).attr("y", y(10))
+  .attr("fill", "#4a3a28").attr("font-size", "9px")
+  .attr("alignment-baseline", "middle").text("10");
+
+// 3-cell markers
+data.chapters.forEach(ch => {
+  if (data.has3cells[ch]) {
+    const cx = x(ch);
+    const cy = H + 38;
+    const sz = 4;
+    svg.append("path")
+      .attr("d", `M${cx},${cy - sz} L${cx + sz},${cy} L${cx},${cy + sz} L${cx - sz},${cy} Z`)
+      .attr("fill", "none")
+      .attr("stroke", "#e8a040")
+      .attr("stroke-width", 1.2)
+      .attr("opacity", 0)
+      .transition().duration(600).delay(3000 + ch * 60)
+      .attr("opacity", 0.5);
+  }
+});
+
+// Draw streams
+streamOrder.forEach((key, si) => {
+  const stream = data.streams[key];
+  const allPts = data.chapters.map(ch => ({ch, v: stream.values[ch]}));
+  const pts = allPts.filter(p => p.v !== null);
+
+  const segments = [];
+  let seg = [];
+  for (let i = 0; i < pts.length; i++) {
+    if (seg.length > 0 && pts[i].ch !== pts[i-1].ch + 1) {
+      segments.push(seg); seg = [];
+    }
+    seg.push(pts[i]);
+  }
+  if (seg.length > 0) segments.push(seg);
+
+  if (stream.showGaps) {
+    for (let i = 0; i < segments.length - 1; i++) {
+      const lastPt = segments[i][segments[i].length - 1];
+      const nextPt = segments[i + 1][0];
+      const flatY = y(0);
+
+      svg.append("line")
+        .attr("x1", x(lastPt.ch)).attr("y1", y(lastPt.v))
+        .attr("x2", x(lastPt.ch + 0.4)).attr("y2", flatY)
+        .attr("stroke", stream.color).attr("stroke-width", 1.5)
+        .attr("stroke-dasharray", "3,3").attr("opacity", 0)
+        .transition().duration(500).delay(si * 400 + 1800)
+        .attr("opacity", 0.5);
+
+      svg.append("line")
+        .attr("x1", x(lastPt.ch + 0.4)).attr("y1", flatY)
+        .attr("x2", x(nextPt.ch - 0.4)).attr("y2", flatY)
+        .attr("stroke", stream.color).attr("stroke-width", 2)
+        .attr("stroke-dasharray", "6,4").attr("opacity", 0)
+        .transition().duration(600).delay(si * 400 + 2000)
+        .attr("opacity", 0.45);
+
+      svg.append("line")
+        .attr("x1", x(nextPt.ch - 0.4)).attr("y1", flatY)
+        .attr("x2", x(nextPt.ch)).attr("y2", y(nextPt.v))
+        .attr("stroke", stream.color).attr("stroke-width", 1.5)
+        .attr("stroke-dasharray", "3,3").attr("opacity", 0)
+        .transition().duration(500).delay(si * 400 + 2300)
+        .attr("opacity", 0.5);
+    }
+  }
+
+  segments.forEach(segment => {
+    if (segment.length < 2) {
+      const p = segment[0];
+      svg.append("circle")
+        .attr("cx", x(p.ch)).attr("cy", y(p.v))
+        .attr("r", 3.5).attr("fill", stream.color)
+        .attr("opacity", 0)
+        .transition().duration(400).delay(si * 400 + 1800).attr("opacity", 0.9);
+      return;
+    }
+
+    const line = d3.line()
+      .x(d => x(d.ch)).y(d => y(d.v))
+      .curve(d3.curveCardinal.tension(0.3));
+
+    svg.append("path").datum(segment).attr("d", line)
+      .attr("fill", "none").attr("stroke", stream.color)
+      .attr("stroke-width", 6).attr("opacity", 0.15).style("filter", "blur(4px)");
+
+    const path = svg.append("path").datum(segment).attr("d", line)
+      .attr("fill", "none").attr("stroke", stream.color)
+      .attr("stroke-width", 2.5).attr("opacity", 0.85).attr("stroke-linecap", "round");
+    const len = path.node().getTotalLength();
+    path.attr("stroke-dasharray", len).attr("stroke-dashoffset", len)
+      .transition().duration(2000).delay(si * 400).ease(d3.easeCubicInOut)
+      .attr("stroke-dashoffset", 0);
+
+    segment.forEach((p, i) => {
+      svg.append("circle")
+        .attr("cx", x(p.ch)).attr("cy", y(p.v))
+        .attr("r", 3.5).attr("fill", stream.color)
+        .attr("stroke", "#1a1410").attr("stroke-width", 1.5)
+        .attr("opacity", 0)
+        .transition().duration(300).delay(si * 400 + (i / segment.length) * 2000)
+        .attr("opacity", 0.9);
+    });
+  });
+});
+
+// --- Memorable faces ---
+// warm = gold (#d4af60), dark = ashen (#7a6a6a with slight cool tint)
+const toneColors = {
+  warm: {fill: "#d4af60", stroke: "#8a6a20", glow: "#d4af60"},
+  dark: {fill: "#7a6a6a", stroke: "#4a4040", glow: "#6a5a5a"}
+};
+
+data.chapters.forEach(ch => {
+  const faces = data.faces[ch];
+  faces.forEach((f, fi) => {
+    const cx = x(ch) + (fi - (faces.length - 1) / 2) * 8;
+    const cy = y(f.val);
+    const isGod = f.name.toLowerCase().includes("god");
+    const tc = toneColors[f.tone] || toneColors.warm;
+
+    // God's voice is no longer a star — just a regular warm face
+    // (the vertical bar glow handles the divine presence)
+    const sz = 3.2;
+    svg.append("path")
+      .attr("d", `M${cx},${cy - sz} L${cx + sz},${cy} L${cx},${cy + sz} L${cx - sz},${cy} Z`)
+      .attr("fill", tc.fill)
+      .attr("opacity", 0)
+      .attr("stroke", tc.stroke)
+      .attr("stroke-width", 0.5)
+      .transition().duration(500).delay(2400 + ch * 80 + fi * 60)
+      .attr("opacity", 0.75);
+
+    svg.append("circle")
+      .attr("cx", cx).attr("cy", cy)
+      .attr("r", 6).attr("fill", tc.glow).attr("opacity", 0)
+      .style("filter", "blur(4px)")
+      .transition().duration(500).delay(2400 + ch * 80 + fi * 60)
+      .attr("opacity", 0.15);
+  });
+});
+
+// Chapter numbers
+data.chapters.forEach(ch => {
+  svg.append("text").attr("class", "chapter-num")
+    .attr("x", x(ch)).attr("y", H + 22).text(ch);
+});
+
+// Y label
+svg.append("text").attr("transform", "rotate(-90)")
+  .attr("x", -H/2).attr("y", -35)
+  .attr("fill", "#6a5a3a").attr("font-size", "11px")
+  .attr("text-anchor", "middle").attr("font-family", "Georgia, serif")
+  .text("consistency error \u2192");
+
+// Hover tooltips
+data.chapters.forEach(ch => {
+  svg.append("rect")
+    .attr("x", x(ch) - W/32).attr("y", 0)
+    .attr("width", W/16).attr("height", H + 30)
+    .attr("fill", "transparent").attr("cursor", "pointer")
+    .on("mouseenter", function(event) {
+      d3.select(this).attr("fill", "rgba(200,176,128,0.05)");
+      let html = `<div class="ch-title">Chapter ${ch}: ${data.titles[ch]}</div>`;
+      if (data.godChapters.includes(ch)) {
+        html += `<div style="font-size:10px; color:#fff8c0; font-style:italic;">heaven speaks</div>`;
+      }
+      html += `<div>CR: <span class="cr-val">${data.cr[ch].toFixed(2)}</span>`;
+      if (data.has3cells[ch]) {
+        html += ` <span style="color:#e8a040; font-size:10px;">&#9670; 3-cells</span>`;
+      }
+      html += `</div>`;
+      html += `<div style="margin-top:6px;">`;
+      streamOrder.forEach(key => {
+        const s = data.streams[key];
+        const v = s.values[ch];
+        if (v === null) {
+          if (s.showGaps) {
+            html += `<span class="absent">\u2715 ${s.name}: absent</span><br>`;
+          }
+        } else {
+          const prevV = ch > 1 ? s.values[ch - 1] : null;
+          const nextV = ch < 16 ? s.values[ch + 1] : null;
+          const isLone = prevV === null && nextV === null && s.showGaps;
+          if (isLone) {
+            html += `<span class="lone">\u25C9 ${s.name}: ${v.toFixed(2)} (returned)</span><br>`;
+          } else {
+            html += `<span style="color:${s.color};">\u25CF ${s.name}: ${v.toFixed(2)}</span><br>`;
+          }
+        }
+      });
+      html += `</div>`;
+      if (data.has3cells[ch]) {
+        html += `<div style="margin-top:4px; font-size:10px; color:#e8a040; border-top:1px solid #3a3020; padding-top:3px;">`;
+        html += `&#9670; ${data.has3cells[ch]}`;
+        html += `</div>`;
+      }
+      html += `<div style="margin-top:5px; font-size:10px; color:#b8975a; border-top:1px solid #2a2218; padding-top:4px;">`;
+      data.faces[ch].forEach(f => {
+        const marker = f.tone === "dark" ? `<span style="color:#7a6a6a;">\u25C6</span>` : `<span style="color:#d4af60;">\u2726</span>`;
+        html += `${marker} ${f.name} <span style="color:#6a5a3a;">(${f.val.toFixed(2)})</span><br>`;
+      });
+      html += `</div>`;
+      tooltip.html(html).style("opacity", 1)
+        .style("left", (event.pageX + 15) + "px")
+        .style("top", (event.pageY - 10) + "px");
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX + 15) + "px")
+        .style("top", (event.pageY - 10) + "px");
+    })
+    .on("mouseleave", function() {
+      d3.select(this).attr("fill", "transparent");
+      tooltip.style("opacity", 0);
+    });
+});
+
+</script>
+</body>
+</html>
