@@ -1,5 +1,6 @@
 (function() {
     const STACKED_LAYOUT_BREAKPOINT = 700;
+    const MEDITATION_WORKSPACE_KEY = 'alcyMeditationWorkspace';
     const DEFAULT_TEXT_PANEL_WIDTH = 38;
     const DEFAULT_TEXT_PANEL_HEIGHT = 44;
     const MIN_TEXT_PANEL_WIDTH = 20;
@@ -30,7 +31,10 @@
         btnFontUp: null,
         gesture: null,
         canvas: null,
-        isResizing: false
+        isResizing: false,
+        textPanelWidth: DEFAULT_TEXT_PANEL_WIDTH,
+        textPanelHeight: DEFAULT_TEXT_PANEL_HEIGHT,
+        persistTimer: null
     };
 
     function getPageContext() {
@@ -92,6 +96,7 @@
             state.shell.hidden = true;
             state.shell.setAttribute('aria-hidden', 'true');
         }
+        scheduleWorkspaceSave();
         return true;
     }
 
@@ -107,6 +112,7 @@
         renderMeditationText();
         bindCanvasAndToolbar();
         bindResizeHandle();
+        restoreWorkspace();
         syncLayoutMode();
 
         state.built = true;
@@ -432,7 +438,7 @@
     }
 
     function bindCanvasAndToolbar() {
-        state.canvas = new MeditationCanvas(state.drawCanvas);
+        state.canvas = new MeditationCanvas(state.drawCanvas, scheduleWorkspaceSave);
         state.gesture = new GestureSelect(state.gestureCanvas, state.textArticle, state.canvasPanel);
 
         state.canvasPanel.addEventListener('droptext', function(event) {
@@ -442,6 +448,7 @@
 
         bindToolbarAction(state.toolbarToggle, function() {
             state.toolbar.classList.toggle('collapsed');
+            scheduleWorkspaceSave();
         });
 
         state.colorPicker.addEventListener('input', function(event) {
@@ -449,25 +456,30 @@
             state.colorSwatch.style.background = color;
             state.canvas.setColor(color);
             state.gesture.setColor(color);
+            scheduleWorkspaceSave();
         });
 
         bindToolbarAction(state.btnUndo, function() {
             state.canvas.undo();
+            scheduleWorkspaceSave();
         });
 
         bindToolbarAction(state.btnClear, function() {
             state.canvas.clearAll();
             updateSurfaceButton();
+            scheduleWorkspaceSave();
         });
 
         bindToolbarAction(state.btnDeeper, function() {
             state.canvas.goDeeper();
             updateSurfaceButton();
+            scheduleWorkspaceSave();
         });
 
         bindToolbarAction(state.btnSurface, function() {
             state.canvas.goSurface();
             updateSurfaceButton();
+            scheduleWorkspaceSave();
         });
 
         bindToolbarAction(state.btnFontDown, function() {
@@ -479,6 +491,7 @@
             } else {
                 state.canvas.setFontSize(state.canvas.fontSize - 2);
             }
+            scheduleWorkspaceSave();
         });
 
         bindToolbarAction(state.btnFontUp, function() {
@@ -490,6 +503,7 @@
             } else {
                 state.canvas.setFontSize(state.canvas.fontSize + 2);
             }
+            scheduleWorkspaceSave();
         });
 
         updateSurfaceButton();
@@ -498,6 +512,7 @@
             state.canvas.resize();
             state.gesture.resize();
         });
+        window.addEventListener('pagehide', saveWorkspace);
     }
 
     function updateSurfaceButton() {
@@ -515,6 +530,7 @@
             document.body.style.cursor = '';
             state.canvas.resize();
             state.gesture.resize();
+            scheduleWorkspaceSave();
         }
 
         state.resizeHandle.addEventListener('pointerdown', function(event) {
@@ -573,7 +589,8 @@
         const shellRect = state.shell.getBoundingClientRect();
         const position = ((event.clientX - shellRect.left) / shellRect.width) * 100;
         const percentage = clamp(position, MIN_TEXT_PANEL_WIDTH, MAX_TEXT_PANEL_WIDTH);
-        state.textPanel.style.width = percentage + '%';
+        state.textPanelWidth = percentage;
+        state.textPanel.style.width = state.textPanelWidth + '%';
         state.textPanel.style.height = '';
     }
 
@@ -581,7 +598,8 @@
         const shellRect = state.shell.getBoundingClientRect();
         const position = ((event.clientY - shellRect.top) / shellRect.height) * 100;
         const percentage = clamp(position, MIN_TEXT_PANEL_HEIGHT, MAX_TEXT_PANEL_HEIGHT);
-        state.textPanel.style.height = percentage + '%';
+        state.textPanelHeight = percentage;
+        state.textPanel.style.height = state.textPanelHeight + '%';
         state.textPanel.style.width = '';
     }
 
@@ -591,15 +609,11 @@
         }
 
         if (isStackedLayout()) {
-            if (!state.textPanel.style.height) {
-                state.textPanel.style.height = DEFAULT_TEXT_PANEL_HEIGHT + '%';
-            }
+            state.textPanel.style.height = state.textPanelHeight + '%';
             state.textPanel.style.width = '';
             state.resizeHandle.setAttribute('aria-orientation', 'horizontal');
         } else {
-            if (!state.textPanel.style.width) {
-                state.textPanel.style.width = DEFAULT_TEXT_PANEL_WIDTH + '%';
-            }
+            state.textPanel.style.width = state.textPanelWidth + '%';
             state.textPanel.style.height = '';
             state.resizeHandle.setAttribute('aria-orientation', 'vertical');
         }
@@ -611,6 +625,100 @@
 
     function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
+    }
+
+    function scheduleWorkspaceSave() {
+        clearTimeout(state.persistTimer);
+        state.persistTimer = setTimeout(saveWorkspace, 120);
+    }
+
+    function saveWorkspace() {
+        clearTimeout(state.persistTimer);
+        state.persistTimer = null;
+
+        if (!state.built || !state.canvas) {
+            return;
+        }
+
+        writeStoredJson(sessionStorage, MEDITATION_WORKSPACE_KEY, {
+            version: 1,
+            textPanelWidth: state.textPanelWidth,
+            textPanelHeight: state.textPanelHeight,
+            toolbarCollapsed: state.toolbar.classList.contains('collapsed'),
+            color: state.colorPicker.value,
+            fontSize: state.canvas.fontSize,
+            canvas: state.canvas.serializeState()
+        });
+    }
+
+    function restoreWorkspace() {
+        const workspace = readStoredJson(sessionStorage, MEDITATION_WORKSPACE_KEY);
+        if (!workspace) {
+            return;
+        }
+
+        const savedWidth = getFiniteNumber(workspace.textPanelWidth);
+        if (savedWidth !== null) {
+            state.textPanelWidth = clamp(savedWidth, MIN_TEXT_PANEL_WIDTH, MAX_TEXT_PANEL_WIDTH);
+        }
+
+        const savedHeight = getFiniteNumber(workspace.textPanelHeight);
+        if (savedHeight !== null) {
+            state.textPanelHeight = clamp(savedHeight, MIN_TEXT_PANEL_HEIGHT, MAX_TEXT_PANEL_HEIGHT);
+        }
+
+        if (typeof workspace.toolbarCollapsed === 'boolean') {
+            state.toolbar.classList.toggle('collapsed', workspace.toolbarCollapsed);
+        }
+
+        const savedColor = sanitizeColor(workspace.color);
+        if (savedColor) {
+            state.colorPicker.value = savedColor;
+            state.colorSwatch.style.background = savedColor;
+            state.canvas.setColor(savedColor);
+            state.gesture.setColor(savedColor);
+        }
+
+        const savedFontSize = getFiniteNumber(workspace.fontSize);
+        if (savedFontSize !== null) {
+            state.canvas.setFontSize(savedFontSize);
+        }
+
+        if (workspace.canvas) {
+            state.canvas.restoreState(workspace.canvas);
+        }
+
+        updateSurfaceButton();
+    }
+
+    function readStoredJson(storage, key) {
+        try {
+            const raw = storage.getItem(key);
+            if (!raw) {
+                return null;
+            }
+            return JSON.parse(raw);
+        } catch (error) {
+            console.warn('Unable to read meditation workspace', error);
+            return null;
+        }
+    }
+
+    function writeStoredJson(storage, key, value) {
+        try {
+            storage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+            console.warn('Unable to save meditation workspace', error);
+        }
+    }
+
+    function getFiniteNumber(value) {
+        const number = Number(value);
+        return Number.isFinite(number) ? number : null;
+    }
+
+    function sanitizeColor(value) {
+        return /^#[0-9a-f]{6}$/i.test(String(value || '')) ? value : null;
     }
 
     class GestureSelect {
@@ -948,9 +1056,10 @@
     }
 
     class MeditationCanvas {
-        constructor(canvasEl) {
+        constructor(canvasEl, onChange) {
             this.canvasEl = canvasEl;
             this.ctx = canvasEl.getContext('2d');
+            this.onChange = typeof onChange === 'function' ? onChange : function() {};
             this.panX = 0;
             this.panY = 0;
             this.zoom = 1;
@@ -1014,6 +1123,7 @@
             };
             this.layer.textNodes.push(node);
             this.layer.history.push({ type: 'text', ref: node });
+            this.onChange();
             return node.id;
         }
 
@@ -1022,6 +1132,7 @@
             this.layer.strokes = [];
             this.layer.history = [];
             this.selectedNode = null;
+            this.onChange();
         }
 
         hitTestText(screenX, screenY) {
@@ -1047,6 +1158,7 @@
 
         goDeeper() {
             this.layers.push(this.newLayer());
+            this.onChange();
         }
 
         goSurface() {
@@ -1057,6 +1169,7 @@
             if (this.selectedNode && this.layer.textNodes.indexOf(this.selectedNode) === -1) {
                 this.selectedNode = null;
             }
+            this.onChange();
             return true;
         }
 
@@ -1226,6 +1339,7 @@
                 this.panX = mouseX - ratio * (mouseX - this.panX);
                 this.panY = mouseY - ratio * (mouseY - this.panY);
                 this.zoom = nextZoom;
+                this.onChange();
             }, { passive: false });
 
             canvas.addEventListener('touchmove', (event) => {
@@ -1251,6 +1365,7 @@
                 this.panX = mouseX - ratio * (mouseX - this.panX);
                 this.panY = mouseY - ratio * (mouseY - this.panY);
                 this.zoom = nextZoom;
+                this.onChange();
             }, { passive: false });
         }
 
@@ -1329,11 +1444,13 @@
 
             if (this.draggedTextNode) {
                 this.draggedTextNode = null;
+                this.onChange();
                 return;
             }
 
             if (this.isPanning) {
                 this.isPanning = false;
+                this.onChange();
                 return;
             }
 
@@ -1341,6 +1458,7 @@
                 if (this.currentStroke.points.length > 1) {
                     this.layer.strokes.push(this.currentStroke);
                     this.layer.history.push({ type: 'stroke', ref: this.currentStroke });
+                    this.onChange();
                 }
                 this.currentStroke = null;
             }
@@ -1360,10 +1478,12 @@
 
         setColor(color) {
             this.drawColor = color;
+            this.onChange();
         }
 
         setFontSize(size) {
             this.fontSize = clamp(size, 8, 72);
+            this.onChange();
         }
 
         undo() {
@@ -1376,6 +1496,7 @@
                 if (strokeIndex !== -1) {
                     this.layer.strokes.splice(strokeIndex, 1);
                 }
+                this.onChange();
                 return;
             }
             const textIndex = this.layer.textNodes.indexOf(entry.ref);
@@ -1384,7 +1505,132 @@
                     this.selectedNode = null;
                 }
                 this.layer.textNodes.splice(textIndex, 1);
+                this.onChange();
             }
+        }
+
+        serializeState() {
+            return {
+                panX: this.panX,
+                panY: this.panY,
+                zoom: this.zoom,
+                drawColor: this.drawColor,
+                drawWidth: this.drawWidth,
+                fontSize: this.fontSize,
+                nodeIdCounter: this.nodeIdCounter,
+                layers: this.layers.map(function(layer) {
+                    return {
+                        strokes: layer.strokes.map(function(stroke) {
+                            return {
+                                color: stroke.color,
+                                width: stroke.width,
+                                points: stroke.points.map(function(point) {
+                                    return { x: point.x, y: point.y };
+                                })
+                            };
+                        }),
+                        textNodes: layer.textNodes.map(function(node) {
+                            return {
+                                id: node.id,
+                                text: node.text,
+                                x: node.x,
+                                y: node.y,
+                                color: node.color,
+                                fontSize: node.fontSize
+                            };
+                        }),
+                        history: layer.history.map(function(entry) {
+                            if (entry.type === 'stroke') {
+                                const refIndex = layer.strokes.indexOf(entry.ref);
+                                return refIndex === -1 ? null : { type: 'stroke', refIndex: refIndex };
+                            }
+                            if (entry.type === 'text') {
+                                return { type: 'text', refId: entry.ref.id };
+                            }
+                            return null;
+                        }).filter(Boolean)
+                    };
+                })
+            };
+        }
+
+        restoreState(savedState) {
+            if (!savedState || !Array.isArray(savedState.layers) || savedState.layers.length === 0) {
+                return false;
+            }
+
+            const restoredLayers = savedState.layers.map(function(layer) {
+                const strokes = Array.isArray(layer.strokes) ? layer.strokes.map(function(stroke) {
+                    return {
+                        color: stroke.color,
+                        width: getFiniteNumber(stroke.width) || 2.5,
+                        points: Array.isArray(stroke.points) ? stroke.points.map(function(point) {
+                            return {
+                                x: getFiniteNumber(point.x) || 0,
+                                y: getFiniteNumber(point.y) || 0
+                            };
+                        }) : []
+                    };
+                }) : [];
+
+                const textNodes = Array.isArray(layer.textNodes) ? layer.textNodes.map(function(node, index) {
+                    return {
+                        id: getFiniteNumber(node.id) || index + 1,
+                        text: String(node.text || ''),
+                        x: getFiniteNumber(node.x) || 0,
+                        y: getFiniteNumber(node.y) || 0,
+                        color: sanitizeColor(node.color) || '#d4a017',
+                        fontSize: getFiniteNumber(node.fontSize) || 18
+                    };
+                }) : [];
+
+                const textNodesById = {};
+                textNodes.forEach(function(node) {
+                    textNodesById[node.id] = node;
+                });
+
+                const history = Array.isArray(layer.history) ? layer.history.map(function(entry) {
+                    if (entry.type === 'stroke') {
+                        const refIndex = getFiniteNumber(entry.refIndex);
+                        const ref = refIndex === null ? null : strokes[refIndex];
+                        return ref ? { type: 'stroke', ref: ref } : null;
+                    }
+
+                    if (entry.type === 'text') {
+                        const refId = getFiniteNumber(entry.refId);
+                        const ref = refId === null ? null : textNodesById[refId];
+                        return ref ? { type: 'text', ref: ref } : null;
+                    }
+
+                    return null;
+                }).filter(Boolean) : [];
+
+                return {
+                    strokes: strokes,
+                    textNodes: textNodes,
+                    history: history
+                };
+            });
+
+            const maxNodeId = restoredLayers.reduce(function(highest, layer) {
+                return Math.max(highest, layer.textNodes.reduce(function(layerHighest, node) {
+                    return Math.max(layerHighest, node.id);
+                }, 0));
+            }, 0);
+
+            this.layers = restoredLayers;
+            this.panX = getFiniteNumber(savedState.panX) || 0;
+            this.panY = getFiniteNumber(savedState.panY) || 0;
+            this.zoom = clamp(getFiniteNumber(savedState.zoom) || 1, 0.1, 5);
+            this.drawColor = sanitizeColor(savedState.drawColor) || '#d4a017';
+            this.drawWidth = clamp(getFiniteNumber(savedState.drawWidth) || 2.5, 1, 12);
+            this.fontSize = clamp(getFiniteNumber(savedState.fontSize) || 18, 8, 72);
+            this.nodeIdCounter = Math.max(getFiniteNumber(savedState.nodeIdCounter) || 0, maxNodeId);
+            this.selectedNode = null;
+            this.draggedTextNode = null;
+            this.currentStroke = null;
+            this.isPanning = false;
+            return true;
         }
 
         resize() {
