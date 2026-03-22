@@ -327,9 +327,10 @@ streamOrder.forEach((key, si) => {
       .attr("stroke-dashoffset", 0);
 
     segment.forEach((p, i) => {
+      const dotColor = (key === "crowd" && p.ch === 15) ? "#908080" : stream.color;
       svg.append("circle")
         .attr("cx", x(p.ch)).attr("cy", y(p.v))
-        .attr("r", 3.5).attr("fill", stream.color)
+        .attr("r", 3.5).attr("fill", dotColor)
         .attr("stroke", "#1a1410").attr("stroke-width", 1.5)
         .attr("opacity", 0)
         .transition().duration(300).delay(si * 400 + (i / segment.length) * 2000)
