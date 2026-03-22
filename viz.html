@@ -112,7 +112,7 @@
 const data = {
   chapters: Array.from({length: 16}, (_, i) => i + 1),
   cr: {1:10.58,2:10.51,3:9.39,4:11.61,5:8.48,6:10.79,7:10.70,8:11.58,
-       9:12.79,10:12.73,11:10.30,12:11.94,13:13.67,14:12.22,15:9.27,16:8.73},
+       9:12.79,10:12.73,11:10.30,12:11.94,13:13.67,14:12.22,15:9.30,16:8.73},
   has3cells: {2: "paralytic healing", 5: "Jairus\u2019s daughter", 9: "transfiguration + healing", 14: "arrest", 15: "Barabbas trial + crucifixion"},
   // Chapters where God's voice speaks — vertical bar gets a heavenly glow
   godChapters: [1, 9],
@@ -128,7 +128,7 @@ const data = {
       color: "#b83030", name: "Jesus",
       showGaps: false,
       values: {1:10.58,2:10.51,3:9.39,4:11.61,5:8.48,6:10.79,7:10.70,8:11.58,
-               9:12.79,10:12.73,11:10.30,12:11.94,13:13.67,14:12.22,15:9.27,16:8.73}
+               9:12.79,10:12.73,11:10.30,12:11.94,13:13.67,14:12.22,15:9.30,16:8.73}
     },
     disciples: {
       color: "#3a7abf", name: "Disciples",
@@ -149,14 +149,15 @@ const data = {
                9:null,10:1.23,11:4.69,12:5.61,13:null,14:5.14,15:6.60,16:null}
     }
   },
-  // tone: "warm" = faithful/positive (gold), "dark" = antagonist (ashen)
+  // tone: "warm" = faithful/positive (gold), "dark" = antagonist (ashen),
+  //       "white" = forerunner/unique role, "blue" = natural force
   faces: {
-    1:  [{name:"leper", val:0.29, tone:"warm"}, {name:"God's voice", val:1.41, tone:"warm"}],
+    1:  [{name:"John the Baptist", val:7.19, tone:"white"}, {name:"leper", val:0.29, tone:"warm"}, {name:"God's voice", val:1.41, tone:"warm"}],
     2:  [{name:"Levi", val:1.17, tone:"warm"}, {name:"paralytic & friends", val:1.92, tone:"warm"}],
     3:  [{name:"withered hand man", val:0.98, tone:"warm"}, {name:"unclean spirits", val:3.22, tone:"dark"}],
-    4:  [{name:"sea & storm", val:2.14, tone:"warm"}],
+    4:  [{name:"sea & storm", val:2.14, tone:"blue"}],
     5:  [{name:"bleeding woman", val:1.31, tone:"warm"}, {name:"demoniac", val:7.15, tone:"warm"}, {name:"Jairus", val:2.44, tone:"warm"}],
-    6:  [{name:"Gennesaret people", val:0.00, tone:"warm"}, {name:"Herod", val:6.23, tone:"dark"}, {name:"Herodias", val:2.32, tone:"dark"}],
+    6:  [{name:"Gennesaret people", val:0.00, tone:"warm"}, {name:"John the Baptist", val:4.38, tone:"white"}, {name:"Herod", val:6.23, tone:"dark"}, {name:"Herodias", val:2.32, tone:"dark"}],
     7:  [{name:"Syrophoenician woman", val:1.67, tone:"warm"}, {name:"deaf man", val:0.00, tone:"warm"}],
     8:  [{name:"blind man", val:0.00, tone:"warm"}],
     9:  [{name:"God's voice", val:0.00, tone:"warm"}, {name:"epileptic boy's father", val:3.40, tone:"warm"}],
@@ -165,7 +166,7 @@ const data = {
     12: [{name:"widow", val:1.23, tone:"warm"}, {name:"scribe", val:1.97, tone:"warm"}, {name:"Sadducees", val:1.04, tone:"dark"}],
     13: [{name:"persecutors", val:0.31, tone:"dark"}, {name:"Son of Man", val:3.20, tone:"warm"}],
     14: [{name:"anointing woman", val:0.00, tone:"warm"}, {name:"Judas", val:3.27, tone:"dark"}, {name:"high priest", val:2.01, tone:"dark"}],
-    15: [{name:"Simon of Cyrene", val:0.00, tone:"warm"}, {name:"centurion", val:3.31, tone:"warm"}, {name:"Joseph of Arimathea", val:4.26, tone:"warm"}, {name:"Barabbas", val:1.47, tone:"dark"}],
+    15: [{name:"Simon of Cyrene", val:0.49, tone:"warm"}, {name:"centurion", val:3.27, tone:"warm"}, {name:"Joseph of Arimathea", val:4.19, tone:"warm"}, {name:"Barabbas", val:4.07, tone:"dark"}],
     16: [{name:"angel at the tomb", val:3.46, tone:"warm"}, {name:"Mary Magdalene", val:5.34, tone:"warm"}],
   }
 };
@@ -340,8 +341,10 @@ streamOrder.forEach((key, si) => {
 // --- Memorable faces ---
 // warm = gold (#d4af60), dark = ashen (#7a6a6a with slight cool tint)
 const toneColors = {
-  warm: {fill: "#d4af60", stroke: "#8a6a20", glow: "#d4af60"},
-  dark: {fill: "#7a6a6a", stroke: "#4a4040", glow: "#6a5a5a"}
+  warm:  {fill: "#d4af60", stroke: "#8a6a20", glow: "#d4af60"},
+  dark:  {fill: "#7a6a6a", stroke: "#4a4040", glow: "#6a5a5a"},
+  white: {fill: "#e8e0d0", stroke: "#a09080", glow: "#f0ece4"},
+  blue:  {fill: "#7a9ab0", stroke: "#506878", glow: "#7a9ab0"}
 };
 
 data.chapters.forEach(ch => {
@@ -430,7 +433,9 @@ data.chapters.forEach(ch => {
       }
       html += `<div style="margin-top:5px; font-size:10px; color:#b8975a; border-top:1px solid #2a2218; padding-top:4px;">`;
       data.faces[ch].forEach(f => {
-        const marker = f.tone === "dark" ? `<span style="color:#7a6a6a;">\u25C6</span>` : `<span style="color:#d4af60;">\u2726</span>`;
+        const markerColors = {warm:"#d4af60", dark:"#7a6a6a", white:"#e8e0d0", blue:"#7a9ab0"};
+        const mc = markerColors[f.tone] || markerColors.warm;
+        const marker = `<span style="color:${mc};">\u25C6</span>`;
         html += `${marker} ${f.name} <span style="color:#6a5a3a;">(${f.val.toFixed(2)})</span><br>`;
       });
       html += `</div>`;
