@@ -1,0 +1,825 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1 Chronicles 1-2 Genealogy</title>
+  <link rel="stylesheet" type="text/css" href="css/gridj.css">
+  <link rel="stylesheet" type="text/css" href="css/controls.css">
+  <link rel="stylesheet" type="text/css" href="css/navigation.css">
+  <style>
+    .genealogy-page {
+      padding-top: 3rem;
+    }
+
+    .genealogy-component {
+      width: 90%;
+      max-width: 1120px;
+      margin-top: 2.2rem;
+    }
+
+    .genealogy-panel {
+      border-top: 1px solid #ccc;
+      margin-top: 1.8rem;
+      padding-top: 1.1rem;
+    }
+
+    .genealogy-panel-title {
+      color: #555;
+      font-size: 1.15rem;
+      font-style: italic;
+      font-weight: 400;
+      margin: 0 0 0.65rem;
+    }
+
+    .tree-scroll {
+      overflow: auto;
+      padding: 0.5rem 0 1rem;
+      width: 100%;
+    }
+
+    .mobile-tree {
+      display: none;
+    }
+
+    #compressedTree {
+      display: block;
+      min-width: 100%;
+    }
+
+    .genealogy-link {
+      fill: none;
+      stroke: #999;
+      stroke-opacity: 0.45;
+      stroke-width: 1.2px;
+    }
+
+    .segment-node {
+      cursor: pointer;
+    }
+
+    .segment-node .node-dot {
+      fill: #fffff8;
+      stroke: #777;
+      stroke-width: 1.4px;
+    }
+
+    .segment-node .end-dot {
+      fill: #fffff8;
+      opacity: 0;
+      stroke: #999;
+      stroke-width: 1.1px;
+    }
+
+    .segment-node.has-children .end-dot {
+      opacity: 1;
+    }
+
+    .segment-node.has-children .node-dot {
+      fill: #f4f1e6;
+    }
+
+    .segment-node.collapsed .node-dot {
+      fill: #e8e3d3;
+      stroke: #111;
+    }
+
+    .segment-node.spine .node-dot {
+      stroke: #111;
+      stroke-width: 1.8px;
+    }
+
+    .segment-node.david .node-dot {
+      fill: #111;
+      stroke: #111;
+    }
+
+    .genealogy-label {
+      cursor: pointer;
+      fill: #111;
+      font-family: et-book, Palatino, "Palatino Linotype", Georgia, serif;
+      font-size: 13px;
+      dominant-baseline: middle;
+      user-select: none;
+    }
+
+    .genealogy-label .label-arrow {
+      fill: #999;
+    }
+
+    .genealogy-label .label-name.is-spine,
+    .genealogy-label .label-name.is-branch,
+    .genealogy-label .label-name.is-david {
+      font-weight: bold;
+    }
+
+    .genealogy-label .label-name.is-expanded {
+      fill: #555;
+    }
+
+    .genealogy-label .label-gap {
+      cursor: pointer;
+      fill: #111;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .genealogy-label .label-gap.is-expanded {
+      fill: #666;
+      font-weight: normal;
+    }
+
+    @media (max-width: 760px) {
+      .genealogy-component {
+        width: 100%;
+      }
+
+      .tree-scroll {
+        display: none;
+      }
+
+      .mobile-tree {
+        display: block;
+        font-size: 1.08rem;
+        line-height: 1.75rem;
+        padding: 0.25rem 0 0.8rem;
+      }
+
+      .mobile-unit {
+        position: relative;
+        margin: 0.28rem 0;
+      }
+
+      .mobile-row {
+        cursor: pointer;
+        position: relative;
+        z-index: 2;
+      }
+
+      .mobile-start-dot,
+      .mobile-terminal-dot {
+        background: #fffff8;
+        border: 1.2px solid #777;
+        border-radius: 999px;
+        display: inline-block;
+        height: 0.48rem;
+        width: 0.48rem;
+      }
+
+      .mobile-start-dot {
+        margin-right: 0.38rem;
+        vertical-align: 0.04rem;
+      }
+
+      .mobile-terminal-dot {
+        margin-left: 0.28rem;
+        vertical-align: 0.03rem;
+      }
+
+      .mobile-unit.collapsed > .mobile-row .mobile-start-dot {
+        background: #e8e3d3;
+        border-color: #111;
+      }
+
+      .mobile-unit.david > .mobile-row .mobile-start-dot {
+        background: #111;
+        border-color: #111;
+      }
+
+      .mobile-children {
+        border-left: 1px solid #d6d6ce;
+        margin: 0.45rem 0 0.75rem 1.4rem;
+        padding-left: 0.8rem;
+        position: relative;
+      }
+
+      .mobile-connector {
+        height: 100%;
+        left: 0;
+        overflow: visible;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        z-index: 1;
+      }
+
+      .mobile-connector path {
+        fill: none;
+        stroke: #999;
+        stroke-linecap: round;
+        stroke-opacity: 0.55;
+        stroke-width: 1.15px;
+      }
+
+      .mobile-label-token {
+        white-space: nowrap;
+      }
+
+      .mobile-label-token + .mobile-label-token::before {
+        color: #999;
+        content: "\2192";
+        padding: 0 0.28rem;
+      }
+
+      .mobile-name.is-spine,
+      .mobile-name.is-branch,
+      .mobile-name.is-david {
+        font-weight: bold;
+      }
+
+      .mobile-name.is-expanded {
+        color: #555;
+      }
+
+      .mobile-gap {
+        background: transparent;
+        border: 1px solid #bbb;
+        border-radius: 3px;
+        color: #111;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.88em;
+        line-height: 1;
+        padding: 0.12rem 0.32rem 0.14rem;
+        vertical-align: 0.04em;
+      }
+
+      .mobile-gap.is-expanded {
+        border-color: #d0d0d0;
+        color: #666;
+      }
+
+      .genealogy-label {
+        font-size: 12px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- TOP RIBBON -->
+  <div class="nav-ribbon" id="navRibbon">
+    <span class="nav-menu" id="navMenu">&#9776;</span>
+    <span class="nav-text">Genealogy</span>
+  </div>
+
+  <!-- MENU DROPDOWN -->
+  <div class="menu-dropdown" id="menuDropdown">
+    <div class="menu-option" id="aboutLink">About</div>
+    <div class="menu-option verse-toggle">
+      Verse Numbering
+      <span class="toggle-options">
+        <span class="toggle-choice" id="verseOn">On</span>
+        <span class="toggle-choice active" id="verseOff">Off</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- THE TALUS BONE - Navigation Aid (Desktop) -->
+  <div class="nav-aid" id="navAid">
+    <span class="nav-text">Genealogy</span>
+  </div>
+
+  <!-- TREE CONTAINER (hidden by default) -->
+  <div class="tree-container" id="treeContainer">
+    <svg id="tree"></svg>
+  </div><article class="genealogy-page">
+    <p class="subtitle">1 Chronicles 1-2</p>
+    <h1>Genealogy</h1>
+
+    <section>
+      <div id="genealogyView" class="genealogy-component">
+        <div class="genealogy-panel">
+          <h3 class="genealogy-panel-title">Click a dot or label to expand branches. Click [+N] to reveal hidden names.</h3>
+          <div class="tree-scroll">
+            <svg id="compressedTree"></svg>
+          </div>
+          <div id="mobileTree" class="mobile-tree"></div>
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="genealogy-data.js"></script>
+  <script>
+  (function() {
+    const compressionOptions = {
+      minSegmentLength: 6,
+      minHiddenCount: 3
+    };
+
+    const margin = {top: 24, right: 320, bottom: 24, left: 34};
+    const dx = 31;
+    const dy = 285;
+
+    const expandedGapIds = new Set();
+    const dataOrder = new Map(nodes.map((node, index) => [node.id, index]));
+
+    const personRoot = d3.stratify()
+      .id(d => d.id)
+      .parentId(d => d.pid)(nodes);
+
+    personRoot.eachBefore(node => {
+      node.children = sortByDataOrder(node.children);
+    });
+
+    const segmentRoot = d3.hierarchy(buildSegmentTree(personRoot));
+    let uid = 0;
+
+    segmentRoot.descendants().forEach(node => {
+      node.uid = uid++;
+      node.x0 = 0;
+      node.y0 = 0;
+      node._children = node.children || null;
+
+      if (node.depth > 0 && !node.data.hasSpine && node.children) {
+        node.children = null;
+      }
+    });
+
+    const svg = d3.select("#compressedTree");
+    const g = svg.append("g");
+    const gLink = g.append("g").attr("class", "genealogy-links");
+    const gNode = g.append("g").attr("class", "genealogy-nodes");
+    const treeLayout = d3.tree().nodeSize([dx, dy]);
+    const mobileTree = d3.select("#mobileTree");
+
+    update(segmentRoot);
+    window.addEventListener("resize", () => requestAnimationFrame(drawMobileConnectors));
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => requestAnimationFrame(drawMobileConnectors));
+    }
+
+    function sortByDataOrder(children) {
+      if (!children) return children;
+      return children.slice().sort((a, b) => {
+        return dataOrder.get(a.id) - dataOrder.get(b.id);
+      });
+    }
+
+    // The displayed tree is built from compressed segment nodes. A segment
+    // follows one-child descent until the next branch point or leaf.
+    function buildSegmentTree(startNode) {
+      const segment = [startNode];
+      let cursor = startNode;
+
+      while ((cursor.children || []).length === 1) {
+        cursor = cursor.children[0];
+        segment.push(cursor);
+      }
+
+      const endNode = segment[segment.length - 1];
+      const children = (endNode.children || []).map(buildSegmentTree);
+
+      return {
+        id: "segment-" + segment.map(node => node.id).join("-"),
+        segment: segment,
+        endNode: endNode,
+        tokens: compressSegment(segment, compressionOptions),
+        children: children,
+        hasSpine: segment.some(node => node.data.spine),
+        hasDavid: segment.some(node => node.data.david)
+      };
+    }
+
+    // Uniform compression grammar:
+    // first visible ancestor -> next descendant -> [+N] -> last descendant.
+    function compressSegment(segment, options) {
+      const hiddenCount = segment.length - 3;
+
+      if (
+        segment.length < options.minSegmentLength ||
+        hiddenCount < options.minHiddenCount
+      ) {
+        return segment.map(node => nameToken(node));
+      }
+
+      const first = segment[0];
+      const second = segment[1];
+      const last = segment[segment.length - 1];
+      const hidden = segment.slice(2, -1);
+
+      return [
+        nameToken(first),
+        nameToken(second),
+        {
+          type: "gap",
+          id: ["gap", first.id, second.id, last.id].join("-"),
+          hidden: hidden
+        },
+        nameToken(last)
+      ];
+    }
+
+    function nameToken(node, sourceGapId) {
+      return {
+        type: "name",
+        id: node.id,
+        node: node,
+        sourceGapId: sourceGapId || null
+      };
+    }
+
+    function materializeTokens(tokens) {
+      const visible = [];
+
+      tokens.forEach(token => {
+        if (token.type === "name") {
+          visible.push(token);
+          return;
+        }
+
+        const isExpanded = expandedGapIds.has(token.id);
+
+        if (isExpanded) {
+          token.hidden.forEach(node => {
+            visible.push(nameToken(node, token.id));
+          });
+        }
+
+        visible.push({
+          type: "gap",
+          id: token.id,
+          hidden: token.hidden,
+          expanded: isExpanded
+        });
+      });
+
+      return visible;
+    }
+
+    function update(source) {
+      treeLayout(segmentRoot);
+
+      const nodesNow = segmentRoot.descendants().reverse();
+      const linksNow = segmentRoot.links();
+      const node = gNode.selectAll("g.segment-node")
+        .data(nodesNow, d => d.uid);
+
+      const nodeEnter = node.enter()
+        .append("g")
+        .attr("class", nodeClass)
+        .attr("transform", () => `translate(${source.y0},${source.x0})`)
+        .attr("opacity", 0)
+        .on("click", function(event, d) {
+          toggleBranch(d);
+        });
+
+      nodeEnter.append("circle")
+        .attr("class", "node-dot")
+        .attr("r", d => d.data.hasDavid ? 5.8 : 4.6);
+
+      nodeEnter.append("text")
+        .attr("class", "genealogy-label")
+        .attr("x", 12)
+        .attr("dy", "0.32em");
+
+      nodeEnter.append("circle")
+        .attr("class", "end-dot")
+        .attr("r", 3.2);
+
+      nodeEnter.append("title");
+
+      const merged = node.merge(nodeEnter);
+
+      merged.attr("class", nodeClass);
+
+      merged.select("circle.node-dot")
+        .attr("r", d => d.data.hasDavid ? 5.8 : 4.6);
+
+      merged.select("text.genealogy-label")
+        .each(function(d) {
+          renderLabel(d3.select(this), d);
+          d.labelWidth = measureText(this);
+        });
+
+      merged.select("circle.end-dot")
+        .attr("cx", d => labelEndOffset(d))
+        .attr("cy", 0);
+
+      merged.select("title")
+        .text(d => unitTitle(d.data));
+
+      applyDepthSpacing(segmentRoot);
+
+      let left = segmentRoot;
+      let right = segmentRoot;
+      let maxY = 0;
+
+      segmentRoot.eachBefore(node => {
+        if (node.x < left.x) left = node;
+        if (node.x > right.x) right = node;
+        maxY = Math.max(maxY, node.y + labelEndOffset(node));
+      });
+
+      const height = Math.max(260, right.x - left.x + margin.top + margin.bottom);
+      const width = Math.max(980, maxY + margin.left + margin.right);
+      const transition = svg.transition()
+        .duration(250)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [-margin.left, left.x - margin.top, width, height]);
+
+      const link = gLink.selectAll("path")
+        .data(linksNow, d => d.target.uid);
+
+      link.enter()
+        .append("path")
+        .attr("class", "genealogy-link")
+        .attr("d", () => collapsedLinkPath(source))
+        .merge(link)
+        .transition(transition)
+        .attr("d", linkPath);
+
+      link.exit()
+        .transition(transition)
+        .attr("d", () => collapsedLinkPath(source))
+        .remove();
+
+      merged.transition(transition)
+        .attr("transform", d => `translate(${d.y},${d.x})`)
+        .attr("opacity", 1);
+
+      node.exit()
+        .transition(transition)
+        .attr("transform", () => `translate(${source.y},${source.x})`)
+        .attr("opacity", 0)
+        .remove();
+
+      renderMobileTree();
+
+      segmentRoot.eachBefore(node => {
+        node.x0 = node.x;
+        node.y0 = node.y;
+      });
+    }
+
+    function linkPath(d) {
+      const sx = d.source.y + labelEndOffset(d.source);
+      const sy = d.source.x;
+      const tx = d.target.y;
+      const ty = d.target.x;
+      const mx = sx + Math.max(32, (tx - sx) / 2);
+
+      return `M${sx},${sy}C${mx},${sy} ${mx},${ty} ${tx},${ty}`;
+    }
+
+    function collapsedLinkPath(node) {
+      const x = node.y + labelEndOffset(node);
+      const y = node.x;
+      return `M${x},${y}C${x},${y} ${x},${y} ${x},${y}`;
+    }
+
+    function labelEndOffset(d) {
+      return 20 + (d.labelWidth || 0);
+    }
+
+    function applyDepthSpacing(rootNode) {
+      const widthsByDepth = [];
+
+      rootNode.eachBefore(node => {
+        widthsByDepth[node.depth] = Math.max(
+          widthsByDepth[node.depth] || 0,
+          labelEndOffset(node)
+        );
+      });
+
+      const yByDepth = [0];
+      for (let depth = 1; depth < widthsByDepth.length; depth += 1) {
+        yByDepth[depth] = yByDepth[depth - 1] + widthsByDepth[depth - 1] + 78;
+      }
+
+      rootNode.eachBefore(node => {
+        node.y = yByDepth[node.depth] || 0;
+      });
+    }
+
+    function measureText(textNode) {
+      try {
+        return textNode.getComputedTextLength();
+      } catch (error) {
+        return textNode.textContent.length * 7;
+      }
+    }
+
+    function renderMobileTree() {
+      mobileTree.html("");
+      renderMobileUnit(mobileTree, segmentRoot);
+      requestAnimationFrame(drawMobileConnectors);
+    }
+
+    function renderMobileUnit(parentSelection, d) {
+      const unit = parentSelection.append("div")
+        .attr("class", mobileUnitClass(d))
+        .attr("data-uid", d.uid);
+
+      const row = unit.append("div")
+        .attr("class", "mobile-row")
+        .attr("role", d.children || d._children ? "button" : null)
+        .attr("tabindex", d.children || d._children ? "0" : null)
+        .on("click", function(event) {
+          toggleBranch(d);
+        })
+        .on("keydown", function(event) {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          toggleBranch(d);
+        });
+
+      row.append("span")
+        .attr("class", "mobile-start-dot")
+        .attr("aria-hidden", "true");
+
+      const label = row.append("span")
+        .attr("class", "mobile-label");
+
+      renderMobileLabel(label, d);
+
+      if (d.children || d._children) {
+        row.append("span")
+          .attr("class", "mobile-terminal-dot")
+          .attr("aria-hidden", "true");
+      }
+
+      if (!d.children) return;
+
+      unit.append("svg")
+        .attr("class", "mobile-connector")
+        .append("path");
+
+      const childContainer = unit.append("div")
+        .attr("class", "mobile-children");
+
+      d.children.forEach(child => {
+        renderMobileUnit(childContainer, child);
+      });
+    }
+
+    function renderMobileLabel(labelSelection, d) {
+      const visibleTokens = materializeTokens(d.data.tokens);
+
+      visibleTokens.forEach(token => {
+        const tokenHolder = labelSelection.append("span")
+          .attr("class", "mobile-label-token");
+
+        if (token.type === "name") {
+          tokenHolder.append("span")
+            .attr("class", mobileNameClass(token.node, token.sourceGapId))
+            .text(cleanText(token.node.data.name));
+          return;
+        }
+
+        tokenHolder.append("button")
+          .attr("type", "button")
+          .attr("class", "mobile-gap" + (token.expanded ? " is-expanded" : ""))
+          .attr("aria-expanded", token.expanded ? "true" : "false")
+          .text((token.expanded ? "[-" : "[+") + token.hidden.length + "]")
+          .on("click", function(event) {
+            event.stopPropagation();
+            toggleGap(token.id, d);
+          });
+      });
+    }
+
+    function drawMobileConnectors() {
+      mobileTree.selectAll(".mobile-unit").each(function() {
+        const unit = this;
+        const row = directChild(unit, "mobile-row");
+        const connector = directChild(unit, "mobile-connector");
+        const children = directChild(unit, "mobile-children");
+        const path = connector ? connector.querySelector("path") : null;
+        if (!path) return;
+
+        const svgNode = path.ownerSVGElement;
+        const firstChild = children ? children.querySelector(".mobile-unit") : null;
+        const firstChildRow = firstChild ? directChild(firstChild, "mobile-row") : null;
+        const terminal = row ? row.querySelector(".mobile-terminal-dot") : null;
+        const childDot = firstChildRow ? firstChildRow.querySelector(".mobile-start-dot") : null;
+        if (!terminal || !childDot) return;
+
+        const unitRect = unit.getBoundingClientRect();
+        const startRect = terminal.getBoundingClientRect();
+        const endRect = childDot.getBoundingClientRect();
+        const width = Math.max(1, unitRect.width);
+        const height = Math.max(1, unitRect.height);
+        const sx = startRect.left + startRect.width / 2 - unitRect.left;
+        const sy = startRect.top + startRect.height / 2 - unitRect.top;
+        const ex = endRect.left + endRect.width / 2 - unitRect.left;
+        const ey = endRect.top + endRect.height / 2 - unitRect.top;
+        const midY = sy + Math.max(18, (ey - sy) * 0.35);
+
+        svgNode.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        path.setAttribute("d", `M${sx},${sy} C${sx},${midY} ${ex},${midY} ${ex},${ey}`);
+      });
+    }
+
+    function directChild(element, className) {
+      return Array.from(element.children)
+        .find(child => child.classList.contains(className));
+    }
+
+    function renderLabel(textSelection, d) {
+      const visibleTokens = materializeTokens(d.data.tokens);
+      textSelection.selectAll("*").remove();
+
+      visibleTokens.forEach((token, index) => {
+        if (index > 0) {
+          textSelection.append("tspan")
+            .attr("class", "label-arrow")
+            .text(" \u2192 ");
+        }
+
+        if (token.type === "name") {
+          textSelection.append("tspan")
+            .attr("class", nameClass(token.node, token.sourceGapId))
+            .text(cleanText(token.node.data.name));
+          return;
+        }
+
+        textSelection.append("tspan")
+          .attr("class", "label-gap" + (token.expanded ? " is-expanded" : ""))
+          .text((token.expanded ? "[-" : "[+") + token.hidden.length + "]")
+          .on("click", function(event) {
+            event.stopPropagation();
+            toggleGap(token.id, d);
+          });
+      });
+    }
+
+    function nameClass(node, sourceGapId) {
+      const classes = ["label-name"];
+
+      if ((node.children || []).length > 1) classes.push("is-branch");
+      if (node.data.spine) classes.push("is-spine");
+      if (node.data.david) classes.push("is-david");
+      if (sourceGapId) classes.push("is-expanded");
+
+      return classes.join(" ");
+    }
+
+    function nodeClass(d) {
+      const classes = ["segment-node"];
+      if (d.data.hasSpine) classes.push("spine");
+      if (d.data.hasDavid) classes.push("david");
+      if (d.children || d._children) classes.push("has-children");
+      if (!d.children && d._children) classes.push("collapsed");
+      return classes.join(" ");
+    }
+
+    function mobileUnitClass(d) {
+      const classes = ["mobile-unit"];
+      if (d.data.hasSpine) classes.push("spine");
+      if (d.data.hasDavid) classes.push("david");
+      if (d.children || d._children) classes.push("has-children");
+      if (!d.children && d._children) classes.push("collapsed");
+      return classes.join(" ");
+    }
+
+    function mobileNameClass(node, sourceGapId) {
+      const classes = ["mobile-name"];
+
+      if ((node.children || []).length > 1) classes.push("is-branch");
+      if (node.data.spine) classes.push("is-spine");
+      if (node.data.david) classes.push("is-david");
+      if (sourceGapId) classes.push("is-expanded");
+
+      return classes.join(" ");
+    }
+
+    function toggleBranch(d) {
+      if (!d.children && !d._children) return;
+      d.children = d.children ? null : d._children;
+      update(d);
+    }
+
+    function toggleGap(gapId, sourceNode) {
+      if (expandedGapIds.has(gapId)) {
+        expandedGapIds.delete(gapId);
+      } else {
+        expandedGapIds.add(gapId);
+      }
+
+      update(sourceNode);
+    }
+
+    function unitTitle(unit) {
+      return unit.segment.map(node => cleanText(node.data.name)).join(" \u2192 ");
+    }
+
+    function cleanText(value) {
+      return String(value)
+        .replace(/Ã¢â€ â€™/g, "\u2192")
+        .replace(/Ã¢â‚¬â„¢/g, "\u2019");
+    }
+  })();
+  </script>
+  <script src="bible-data.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/nav-controls.js"></script>
+</body>
+</html>
+

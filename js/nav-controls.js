@@ -1,4 +1,4 @@
-// Navigation controls for hamburger menu, verse toggle, and meditation mode
+﻿// Navigation controls for hamburger menu, verse toggle, and meditation mode
 (function() {
     const SHOW_VERSES_KEY = 'showVerses';
     const MEDITATION_MODE_KEY = 'alcyMeditationMode';
@@ -46,6 +46,10 @@
         });
     }
 
+    if (menuDropdown) {
+        addGenealogyMenuLink();
+    }
+
     if (verseOn && verseOff) {
         const savedPref = localStorage.getItem(SHOW_VERSES_KEY);
         if (savedPref === 'true') {
@@ -87,6 +91,27 @@
         }
     }
 
+    function addGenealogyMenuLink() {
+        let genealogyLink = document.getElementById('genealogyLink');
+
+        if (!genealogyLink) {
+            genealogyLink = document.createElement('div');
+            genealogyLink.className = 'menu-option';
+            genealogyLink.id = 'genealogyLink';
+            genealogyLink.textContent = 'Genealogy';
+
+            const verseToggle = menuDropdown.querySelector('.menu-option.verse-toggle');
+            if (verseToggle) {
+                menuDropdown.insertBefore(genealogyLink, verseToggle);
+            } else {
+                menuDropdown.appendChild(genealogyLink);
+            }
+        }
+
+        genealogyLink.addEventListener('click', function() {
+            window.location.href = 'genealogy.html';
+        });
+    }
     function addMeditationToggle() {
         const meditationToggle = document.createElement('div');
         meditationToggle.className = 'menu-option meditation-toggle-row';
@@ -197,3 +222,4 @@
         });
     }
 })();
+
