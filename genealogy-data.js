@@ -141,7 +141,6 @@ const nodes = [
 
   // ── ISAAC'S CHILDREN (1Ch 1:34 – 2:2) ──────────────────────────────────
   {id:"esau",        pid:"isaac",   name:"Esau",        ref:"1Ch 1:35"},
-  {id:"sons-of-seir",pid:"isaac",   name:"Sons of Seir",ref:"1Ch 1:38", note:"Horite peoples of the land of Edom"},
   {id:"israel",      pid:"isaac",   name:"Israel",      ref:"1Ch 1:34", spine:true, note:"also called Jacob"},
 
   // Esau's sons (1Ch 1:35-37)
@@ -163,33 +162,6 @@ const nodes = [
   {id:"mizzah",      pid:"reuel",   name:"Mizzah",      ref:"1Ch 1:37"},
 
   // Sons of Seir (1Ch 1:38-42)
-  {id:"lotan",       pid:"sons-of-seir", name:"Lotan",  ref:"1Ch 1:38"},
-  {id:"shobal-s",    pid:"sons-of-seir", name:"Shobal", ref:"1Ch 1:38"},
-  {id:"zibeon",      pid:"sons-of-seir", name:"Zibeon", ref:"1Ch 1:38"},
-  {id:"anah-s",      pid:"sons-of-seir", name:"Anah",   ref:"1Ch 1:38"},
-  {id:"dishon-s",    pid:"sons-of-seir", name:"Dishon", ref:"1Ch 1:38"},
-  {id:"ezer-s",      pid:"sons-of-seir", name:"Ezer",   ref:"1Ch 1:38"},
-  {id:"dishan",      pid:"sons-of-seir", name:"Dishan", ref:"1Ch 1:38"},
-  {id:"hori",        pid:"lotan",   name:"Hori",        ref:"1Ch 1:39"},
-  {id:"homam",       pid:"lotan",   name:"Homam",       ref:"1Ch 1:39"},
-  {id:"alian",       pid:"shobal-s",name:"Alian",       ref:"1Ch 1:40"},
-  {id:"manahath",    pid:"shobal-s",name:"Manahath",    ref:"1Ch 1:40"},
-  {id:"ebal-s",      pid:"shobal-s",name:"Ebal",        ref:"1Ch 1:40"},
-  {id:"shephi",      pid:"shobal-s",name:"Shephi",      ref:"1Ch 1:40"},
-  {id:"onam-s",      pid:"shobal-s",name:"Onam",        ref:"1Ch 1:40"},
-  {id:"aiah",        pid:"zibeon",  name:"Aiah",        ref:"1Ch 1:40"},
-  {id:"anah-z",      pid:"zibeon",  name:"Anah",        ref:"1Ch 1:40"},
-  {id:"dishon-a",    pid:"anah-s",  name:"Dishon",      ref:"1Ch 1:41"},
-  {id:"hamran",      pid:"dishon-a",name:"Hamran",      ref:"1Ch 1:41"},
-  {id:"eshban",      pid:"dishon-a",name:"Eshban",      ref:"1Ch 1:41"},
-  {id:"ithran",      pid:"dishon-a",name:"Ithran",      ref:"1Ch 1:41"},
-  {id:"cheran",      pid:"dishon-a",name:"Cheran",      ref:"1Ch 1:41"},
-  {id:"bilhan",      pid:"ezer-s",  name:"Bilhan",      ref:"1Ch 1:42"},
-  {id:"zaavan",      pid:"ezer-s",  name:"Zaavan",      ref:"1Ch 1:42"},
-  {id:"jaakan",      pid:"ezer-s",  name:"Jaakan",      ref:"1Ch 1:42"},
-  {id:"uz-d",        pid:"dishan",  name:"Uz",          ref:"1Ch 1:42"},
-  {id:"aran",        pid:"dishan",  name:"Aran",        ref:"1Ch 1:42"},
-
   // ── SONS OF ISRAEL (1Ch 2:1-2) ──────────────────────────────────────────
   {id:"reuben",      pid:"israel",  name:"Reuben",      ref:"1Ch 2:1"},
   {id:"simeon",      pid:"israel",  name:"Simeon",      ref:"1Ch 2:1"},
